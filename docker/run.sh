@@ -16,6 +16,8 @@ docker run  -it \
             -v $HOME/.Xauthority:/root/.Xauthority \
             -v $HOME/.tmux/:/root/.tmux \
             -v $HOME/.config/:/root/.config \
+            -v /run/user/1000:/run/user/1000 \
+            -v $HOME/nano-slam-ros2/datasets/:/root/datasets \
             --device=/dev/bus/usb:/dev/bus/usb \
             jussikalliola/nano-ros2-orbslam3:latest \
             bash
