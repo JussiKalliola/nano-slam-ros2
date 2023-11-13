@@ -94,6 +94,14 @@ else
     # Install gdown using pip
     echo "Installing rosbags..."
     sudo pip3 install rosbags
+
+    # Check if the installation was successful
+    if [ $? -eq 0 ]; then
+      echo "Rosbags installed successfully."
+    else
+      echo "Failed to install rosbags, Python >3.8 required. Exitting..."
+      exit 1
+    fi
 fi
 
 
