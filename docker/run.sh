@@ -1,4 +1,27 @@
-docker pull jussikalliola/nano-ros2-orbslam3:latest
+REGISTRY=jussikalliola
+IMAGE=nano-ros2-orbslam3
+VERSION=latest
+USE_CACHE=1
+SYSTEM_ARCH=$(uname -m)
+
+while getopts v: flag
+do
+    case "${flag}" in
+        v) VERSION=${OPTARG};;
+    esac
+done
+
+if [ -z "${VERSION}" ]; 
+then
+  echo "No version defined. DEFAULT: latest"
+  VERSION=latest
+else
+  echo "Version selected: ${VERSION}"
+fi
+
+
+echo "Pulling an image: ${REGISTRY}/${IMAGE}:${VERSION}"
+docker pull $REGISTRY/$IMAGE:$VERSION
 
 xhost +
 docker run  -it \
@@ -19,5 +42,5 @@ docker run  -it \
             -v /run/user/1000:/run/user/1000 \
             -v $HOME/nano-slam-ros2/datasets/:/root/datasets \
             --device=/dev/bus/usb:/dev/bus/usb \
-            jussikalliola/nano-ros2-orbslam3:latest \
+            $REGISTRY/$IMAGE:$VERSION \
             bash

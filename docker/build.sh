@@ -5,7 +5,7 @@ VERSION=latest
 USE_CACHE=1
 SYSTEM_ARCH=$(uname -m)
 
-while getopts p:a:f: flag
+while getopts p:c:v: flag
 do
     case "${flag}" in
         p) PLATFORMS=${OPTARG};;
