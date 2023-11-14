@@ -1,7 +1,7 @@
 # https://www.docker.com/blog/faster-multi-platform-builds-dockerfile-cross-compilation-guide/
 
 # Cuda
-FROM nvcr.io/nvidia/cudagl:11.4.2-devel-ubuntu18.04 as amd64_base
+FROM nvcr.io/nvidia/cuda:11.7.0-devel-ubuntu18.04 as amd64_base
   
 FROM nvcr.io/nvidia/l4t-base:r32.7.1 as arm64_base
 
@@ -204,6 +204,11 @@ RUN apt-get update && apt update \
 #&& ./scripts/install_prerequisites.sh recommended -y \
 
 # Install Opencv (contrib for  cuda)
+RUN apt-get install -y libcudnn8-dev 
+    #\ THIS DOES NOT WORK, FIX
+    #&& cp -r /usr/lib/cuda/include/* /usr/local/cuda-11.7/include/ \
+    #&& cp -r /usr/lib/cuda/lib64/* /usr/local/cuda-11.7/lib64/
+
 RUN cd /root \
     && wget -O opencv.zip https://github.com/opencv/opencv/archive/4.2.0.zip \
     && wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/refs/tags/4.2.0.zip \
@@ -220,7 +225,7 @@ RUN cd /root \
              -D WITH_OPENGL=ON \
              -D WITH_EIGEN=ON \
              -D WITH_GSTREAMER=ON .. \
-    && make -j8 && make install
+    && make -j1 && make install
 
 # Install Pangolin (ORB SLAM3 Pre req)
 RUN cd /root \
