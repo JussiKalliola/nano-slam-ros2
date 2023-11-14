@@ -4,6 +4,7 @@ IMAGE=nano-ros2-orbslam3
 VERSION=latest
 USE_CACHE=1
 SYSTEM_ARCH=$(uname -m)
+DOCKERFILE=Dockerfile
 
 while getopts p:c:v: flag
 do
@@ -11,6 +12,7 @@ do
         p) PLATFORMS=${OPTARG};;
         c) USE_CACHE=${OPTARG};;
         v) VERSION=${OPTARG};;
+        g) GPU=${OPTARG};;
     esac
 done
 
@@ -20,6 +22,17 @@ then
   PLATFORMS="linux/${SYSTEM_ARCH}"  
 else
   echo "Building for platforms: ${PLATFORMS}"
+fi
+
+
+# Check if NVIDIA GPU drivers are available
+if [ nvidia-smi &> /dev/null ] || [ -v $GPU ]; then
+  echo "Building a container with GPU support."
+  VERSION+="_gpu"
+  DOCKERFILE=gpu.Dockerfile
+else
+  echo "No GPU support."
+  DOCKERFILE=Dockerfile
 fi
 
 
@@ -38,7 +51,7 @@ if [ $USE_CACHE -eq 1 ]; then
     --force-rm \
     --progress=plain \
     --platform ${PLATFORMS} \
-    -f Dockerfile \
+    -f ${DOCKERFILE} \
     -t ${REGISTRY}/${IMAGE}:${VERSION} \
     --push .
 
@@ -48,7 +61,7 @@ else
     --force-rm \
     --progress=plain \
     --platform ${PLATFORMS} \
-    -f Dockerfile \
+    -f ${DOCKERFILE} \
     -t ${REGISTRY}/${IMAGE}:${VERSION} \
     --push .
 fi

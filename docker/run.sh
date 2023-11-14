@@ -29,12 +29,12 @@ docker run  -it \
 	          --net=host \
 	          --cap-add NET_ADMIN \
 	          --privileged \
+            --gpus all \
             -e DISPLAY=$DISPLAY \
             -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
             -e PYTHONBUFFERED=1 \
             -v /etc/timezone:/etc/timezone:ro \
             -v /etc/localtime:/etc/localtime:ro \
-            -v $PWD/../../ros_ws/:/root/ros_ws:rw \
             -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
             -v $HOME/.Xauthority:/root/.Xauthority \
             -v $HOME/.tmux/:/root/.tmux \

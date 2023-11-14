@@ -1,10 +1,7 @@
 # https://www.docker.com/blog/faster-multi-platform-builds-dockerfile-cross-compilation-guide/
 
-# No cuda
-FROM ubuntu:18.04 as amd64_base
-
 # Cuda
-#FROM nvcr.io/nvidia/cudagl:11.4.2-devel-ubuntu18.04 as amd64_cuda_base
+FROM nvcr.io/nvidia/cudagl:11.4.2-devel-ubuntu18.04 as amd64_base
   
 FROM nvcr.io/nvidia/l4t-base:r32.7.1 as arm64_base
 
@@ -217,6 +214,7 @@ RUN cd /root \
              -D BUILD_opencv_python2=OFF \
              -D BUILD_opencv_python3=ON \
              -D WITH_TBB=ON \
+             -D WITH_CUDA=ON \
              -D WITH_V4L=ON \
              -D WITH_QT=ON \
              -D WITH_OPENGL=ON \

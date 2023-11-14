@@ -85,7 +85,7 @@ if [ python3 -c "import gdown" &> /dev/null ]; then
 else
     # Install gdown using pip
     echo "Installing gdown..."
-    sudo pip3 install gdown && sudo pip install gdown
+    sudo pip3 install gdown
 fi
 
 if [ python3 -c "import rosbags" &> /dev/null ]; then
