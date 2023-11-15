@@ -1,0 +1,10 @@
+datasets/
+results/
+docker/
+scripts/
+README.md
+.git
+.gitignore
+.gitmodules
+
+

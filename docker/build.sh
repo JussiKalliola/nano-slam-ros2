@@ -1,10 +1,33 @@
+#!/bin/bash
+
 # define a registry to push the images to
+SCRIPT=$(readlink -f "$0")
+SCRIPT_DIR=$(dirname "${SCRIPT}")
+
 REGISTRY=jussikalliola
 IMAGE=nano-ros2-orbslam3
 VERSION=latest
 USE_CACHE=1
 SYSTEM_ARCH=$(uname -m)
 DOCKERFILE=Dockerfile
+
+# Help function
+show_help() {
+  echo "Usage: $0 [OPTIONS]"
+  echo "Options:"
+  echo "  -h    Show help information"
+  echo "  -v    Version; amd64,arm64,..."
+  echo "  -p    Platoforms; arm64,amd64,..."
+  echo "  -c    Use Cache"
+  echo "  -g    GPU; 1=True, 0=False"
+  exit 0
+}
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+  show_help
+fi
+
+
 
 while getopts p:c:v: flag
 do
@@ -26,7 +49,7 @@ fi
 
 
 # Check if NVIDIA GPU drivers are available
-if [ nvidia-smi &> /dev/null ] || [ -v $GPU ]; then
+if [ nvidia-smi &> /dev/null ] && [ "$GPU" == "1" ]; then
   echo "Building a container with GPU support."
   VERSION+="_gpu"
   DOCKERFILE=gpu.Dockerfile
@@ -37,7 +60,7 @@ fi
 
 
 
-
+echo "${SCRIPT_DIR}"
 echo "Building with params: PLATFORMS=${PLATFORMS}, USE CACHE=${USE_CACHE}, VERSION=${VERSION}"
 
 
@@ -63,5 +86,5 @@ else
     --platform ${PLATFORMS} \
     -f ${DOCKERFILE} \
     -t ${REGISTRY}/${IMAGE}:${VERSION} \
-    --push .
+    --push ${SCRIPT_DIR}/..
 fi

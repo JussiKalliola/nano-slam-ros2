@@ -41,6 +41,7 @@ docker run  -it \
             -v $HOME/.config/:/root/.config \
             -v /run/user/1000:/run/user/1000 \
             -v $HOME/nano-slam-ros2/datasets/:/root/datasets \
+            -v $HOME/nano-slam-ros2/orbslam3_ros2/:/root/colcon_ws/src/orbslam3_ros2 \
             --device=/dev/bus/usb:/dev/bus/usb \
             $REGISTRY/$IMAGE:$VERSION \
             bash

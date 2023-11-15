@@ -1,4 +1,10 @@
 /datasets/*
+/results/*
+/orbslam3/*
+
+!datasets/.gitkeep
+!results/.gitkeep
+!orbslam3/.gitkeep
 
 devel/
 logs/
