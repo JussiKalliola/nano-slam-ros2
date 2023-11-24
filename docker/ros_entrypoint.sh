@@ -1,10 +1,26 @@
 #!/bin/bash
 set -e
 
-source $ROS_ROOT/install/setup.bash
-source /root/ros2_pre_installed/install/setup.bash
+. $ROS_ROOT/install/setup.bash
+#source /root/ros2_pre_installed/install/setup.bash
 
-cd /root/colcon_ws && colcon build --symlink-install --packages-select orbslam3
+echo $TARGET_BUILD
+
+if [[ "$TARGET_BUILD" == "dev" ]]
+then
+  export ORB_SLAM3_DIR="/root/ORB_SLAM3-dev"
+  
+  cd /root/ORB_SLAM3-dev && ./build.sh
+  cd /root/ORB_SLAM3-dev/Thirdparty/Sophus/build && make install
+  rm -rf /root/ORB_SLAM3
+else
+  export ORB_SLAM3_DIR="/root/ORB_SLAM3"
+fi
+
+cd /root/colcon_ws/src/orbslam3_ros2/vocabulary/ && tar -xvzf ORBvoc.txt.tar.gz 
+cd /root/colcon_ws && colcon build --symlink-install
+
+. /root/colcon_ws/install/setup.bash
 
 exec "$@"
 

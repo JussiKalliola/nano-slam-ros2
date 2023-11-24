@@ -79,35 +79,6 @@ function download_euroc_dataset() {
   fi  
 }
 
-<<<<<<< Updated upstream
-# Check if gdown is installed
-if [ python3 -c "import gdown" &> /dev/null ]; then
-    echo "gdown is already installed."
-else
-    # Install gdown using pip
-    echo "Installing gdown..."
-    sudo pip3 install gdown
-fi
-
-if [ python3 -c "import rosbags" &> /dev/null ]; then
-    echo "rosbags is already installed."
-else
-    # Install gdown using pip
-    echo "Installing rosbags..."
-    sudo pip3 install rosbags
-
-    # Check if the installation was successful
-    if [ $? -eq 0 ]; then
-      echo "Rosbags installed successfully."
-    else
-      echo "Failed to install rosbags, Python >3.8 required. Exitting..."
-      exit 1
-    fi
-fi
-=======
->>>>>>> Stashed changes
-
-
 # define a registry to push the images to
 ROOT_DIR="$PWD"
 DATASET_DIR="$ROOT_DIR/datasets"

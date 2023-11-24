@@ -232,13 +232,13 @@ RUN cd /root \
     && make -j8 && make install
 
 # Insrall ORB SLAM3
-RUN cd /root && git clone https://github.com/UZ-SLAMLab/ORB_SLAM3.git ORB_SLAM3 \
-    && cd /root/ORB_SLAM3 && sed -i 's/++11/++14/g' CMakeLists.txt \
-    && sed -i "33s#.*#find_package(OpenCV 4.2)#" CMakeLists.txt \  
-    && ./build.sh \
+RUN cd /root && git clone https://github.com/JussiKalliola/ORB_SLAM3.git ORB_SLAM3 \
+    && cd /root/ORB_SLAM3 && ./build.sh \
     && cd /root/ORB_SLAM3/Thirdparty/Sophus/build && make install
 
 
+#&& cd /root/ORB_SLAM3 && sed -i 's/++11/++14/g' CMakeLists.txt \
+#&& sed -i "33s#.*#find_package(OpenCV 4.2)#" CMakeLists.txt \  
 
 RUN cd ${ROS_ROOT} \
   && colcon build --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release \
@@ -320,6 +320,9 @@ RUN cd /root/ros2_pre_installed \
 RUN mkdir -p /root/colcon_ws/src
 
 COPY ./ros_entrypoint.sh /
+
+ENV TARGET_BUILD="test"
+
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]
