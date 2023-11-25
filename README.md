@@ -1,4 +1,12 @@
-## Build and run container
+## Pull the repository and build docker container
+
+Pull repository and submodules
+`git clone https://github.com/JussiKalliola/nano-slam-ros2.git`
+
+`git submodule update --init --recursive`
+
+
+Build and run docker container
 
 `cd docker`
 
@@ -46,9 +54,9 @@ Stereo-inertial
 ### Evaluate
 
 One trajectory with visualization
-`evo_traj tum ../result/TUM/room1/monocular/KeyFrameTrajectory.txt -p`
+`evo_traj tum ~/result/TUM/room1/monocular/KeyFrameTrajectory.txt -p`
 
 Multiple trajectories with visualization
-`evo_traj tum ../result/TUM/room1/monocular/* -p`
+`evo_traj tum ~/result/TUM/room1/monocular/* -p`
 
 More information from the documentation in [github by Michael Grupp](https://github.com/MichaelGrupp/evo/wiki/evo_traj)
