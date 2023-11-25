@@ -6,6 +6,7 @@
 !datasets/.gitkeep
 !results/.gitkeep
 !orbslam3/.gitkeep
+!orbslam3/orbslam3_interfaces
 
 devel/
 logs/
