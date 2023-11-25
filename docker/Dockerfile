@@ -10,8 +10,11 @@ FROM nvcr.io/nvidia/l4t-base:r32.7.1 as arm64_base
 
 FROM ${TARGETARCH}_base as dev
 
+ARG TARGET_BUILD
+
 SHELL ["/bin/bash", "-c"] 
 ENV SKIP_ROSDEP=""
+ENV TARGET_BUILD=$TARGET_BUILD
 
 # https://github.com/NVIDIA-AI-IOT/ros2_jetson/blob/main/docker/DockerFile.l4tbase.ros2.foxy
 # https://docs.ros.org/en/foxy/Installation/Alternatives/Ubuntu-Development-Setup.html#id9
@@ -52,6 +55,8 @@ RUN apt update \
     python3-dev \
     libpython3.8-dev \
     gcc-8 g++-8 \
+    tmux \
+    vim \
   && rm /usr/bin/gcc /usr/bin/g++ \
   && ln -s gcc-8 /usr/bin/gcc \
   && ln -s g++-8 /usr/bin/g++ \

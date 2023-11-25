@@ -7,7 +7,7 @@ SCRIPT_DIR=$(dirname "${SCRIPT}")
 REGISTRY=jussikalliola
 IMAGE=nano-ros2-orbslam3
 VERSION=latest
-USE_CACHE=1
+USE_CACHE="1"
 SYSTEM_ARCH=$(uname -m)
 DOCKERFILE=Dockerfile
 
@@ -20,6 +20,7 @@ show_help() {
   echo "  -p    Platoforms; arm64,amd64,..."
   echo "  -c    Use Cache"
   echo "  -g    GPU; 1=True, 0=False"
+  echo "  -t    Target build; dev,prod,test... Default=dev"
   exit 0
 }
 
@@ -29,13 +30,14 @@ fi
 
 
 
-while getopts p:c:v: flag
+while getopts p:c:v:g:t: flag
 do
     case "${flag}" in
         p) PLATFORMS=${OPTARG};;
         c) USE_CACHE=${OPTARG};;
         v) VERSION=${OPTARG};;
         g) GPU=${OPTARG};;
+        t) TARGET_BUILD=${OPTARG};;
     esac
 done
 
@@ -58,18 +60,27 @@ else
   DOCKERFILE=Dockerfile
 fi
 
+# Check target build, default dev
+if [ -z "$TARGET_BUILD" ]; then
+  ECHO "No target build given... Default: dev"
+  TARGET_BUILD="dev"
+fi
 
-
-echo "${SCRIPT_DIR}"
-echo "Building with params: PLATFORMS=${PLATFORMS}, USE CACHE=${USE_CACHE}, VERSION=${VERSION}"
+echo -e "\n============================"
+echo -e "Building with params:\n - PLATFORMS=${PLATFORMS}\n - USE CACHE=${USE_CACHE}\n - VERSION=${VERSION}\n - TARGET_BUILD=${TARGET_BUILD}\n - GPU=${GPU}"
+echo -e "============================\n"
 
 
 # create new buildx that support multiple platforms
 docker buildx create --use  --driver-opt network=host --name MultiPlatform
 
 # build the image for two different platforms and push the images
-if [ $USE_CACHE -eq 1 ]; then
+if [ "$USE_CACHE" == "1" ]; then
+  
+  echo "Building with Cache."
+
   docker buildx build \
+    --build-arg TARGET_BUILD=${TARGET_BUILD} \
     --cache-from=type=registery,ref=${REGISTRY}/${IMAGE}:${VERSION} \
     --force-rm \
     --progress=plain \
@@ -79,12 +90,16 @@ if [ $USE_CACHE -eq 1 ]; then
     --push .
 
 else
+
+  echo "Building without Cache."
+
   docker buildx build \
+    --build-arg TARGET_BUILD=${TARGET_BUILD} \
     --no-cache \
     --force-rm \
     --progress=plain \
     --platform ${PLATFORMS} \
     -f ${DOCKERFILE} \
     -t ${REGISTRY}/${IMAGE}:${VERSION} \
-    --push ${SCRIPT_DIR}/..
+    --push .
 fi
