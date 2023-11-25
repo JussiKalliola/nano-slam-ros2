@@ -2,6 +2,7 @@ datasets/
 results/
 docker/
 scripts/
+doxygen/
 README.md
 .git
 .gitignore

@@ -1,6 +1,7 @@
 /datasets/*
 /results/*
 /orbslam3/*
+/doxygen
 
 !datasets/.gitkeep
 !results/.gitkeep

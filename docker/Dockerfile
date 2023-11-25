@@ -297,6 +297,17 @@ RUN cd /root/ros2_pre_installed \
   && rosdep install --from-paths src --ignore-src -r -y --rosdistro=$ROS_DISTRO --skip-keys="$ROSDEP_SKIP_PACKAGES" \
   && colcon build --merge-install --install-base "$ROS_ROOT/install" --cmake-args -DCMAKE_BUILD_TYPE=Release 
 
+
+
+# Install python3.8 and setup virtualenvironment for trajectory evaluation using package:
+# https://github.com/MichaelGrupp/evo/wiki/evo_traj
+RUN mkdir ~/traj_eval && cd ~/traj_eval \
+    && apt install -y python3.8 && python3.8 -m pip install virtualenv \
+    && virtualenv --python="/usr/bin/python3.8" "./" \ 
+    && source ~/traj_eval/bin/activate \
+    && pip install evo --upgrade --no-binary evo && deactivate
+
+
 #--packages-up-to-regex nav2* rtabmap* --packages-skip pcl_ros 
 
 # behaviortree_cpp_v3 gazebo* nav2* navigation2 smac_planner octomap_msgs octomap_ros rtabmap*
