@@ -1,21 +1,15 @@
 # https://www.docker.com/blog/faster-multi-platform-builds-dockerfile-cross-compilation-guide/
 
-# No cuda
-FROM ubuntu:18.04 as amd64_base
-
 # Cuda
-#FROM nvcr.io/nvidia/cudagl:11.4.2-devel-ubuntu18.04 as amd64_cuda_base
+FROM nvcr.io/nvidia/cuda:11.7.0-devel-ubuntu18.04 as amd64_base
   
 FROM nvcr.io/nvidia/l4t-base:r32.7.1 as arm64_base
 
 FROM ${TARGETARCH}_base as dev
 
-ARG TARGET_BUILD
-
 SHELL ["/bin/bash", "-c"] 
 ENV SKIP_ROSDEP=""
-ENV TARGET_BUILD=$TARGET_BUILD
-ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib/"
+
 # https://github.com/NVIDIA-AI-IOT/ros2_jetson/blob/main/docker/DockerFile.l4tbase.ros2.foxy
 # https://docs.ros.org/en/foxy/Installation/Alternatives/Ubuntu-Development-Setup.html#id9
 # https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html
@@ -55,8 +49,6 @@ RUN apt update \
     python3-dev \
     libpython3.8-dev \
     gcc-8 g++-8 \
-    tmux \
-    vim \
   && rm /usr/bin/gcc /usr/bin/g++ \
   && ln -s gcc-8 /usr/bin/gcc \
   && ln -s g++-8 /usr/bin/g++ \
@@ -212,6 +204,11 @@ RUN apt-get update && apt update \
 #&& ./scripts/install_prerequisites.sh recommended -y \
 
 # Install Opencv (contrib for  cuda)
+RUN apt-get install -y libcudnn8-dev 
+    #\ THIS DOES NOT WORK, FIX
+    #&& cp -r /usr/lib/cuda/include/* /usr/local/cuda-11.7/include/ \
+    #&& cp -r /usr/lib/cuda/lib64/* /usr/local/cuda-11.7/lib64/
+
 RUN cd /root \
     && wget -O opencv.zip https://github.com/opencv/opencv/archive/4.2.0.zip \
     && wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/refs/tags/4.2.0.zip \
@@ -222,12 +219,13 @@ RUN cd /root \
              -D BUILD_opencv_python2=OFF \
              -D BUILD_opencv_python3=ON \
              -D WITH_TBB=ON \
+             -D WITH_CUDA=ON \
              -D WITH_V4L=ON \
              -D WITH_QT=ON \
              -D WITH_OPENGL=ON \
              -D WITH_EIGEN=ON \
              -D WITH_GSTREAMER=ON .. \
-    && make -j8 && make install
+    && make -j1 && make install
 
 # Install Pangolin (ORB SLAM3 Pre req)
 RUN cd /root \
@@ -237,13 +235,13 @@ RUN cd /root \
     && make -j8 && make install
 
 # Insrall ORB SLAM3
-RUN cd /root && git clone https://github.com/JussiKalliola/ORB_SLAM3.git ORB_SLAM3 \
-    && cd /root/ORB_SLAM3 && ./build.sh \
+RUN cd /root && git clone https://github.com/UZ-SLAMLab/ORB_SLAM3.git ORB_SLAM3 \
+    && cd /root/ORB_SLAM3 && sed -i 's/++11/++14/g' CMakeLists.txt \
+    && sed -i "33s#.*#find_package(OpenCV 4.2)#" CMakeLists.txt \  
+    && ./build.sh \
     && cd /root/ORB_SLAM3/Thirdparty/Sophus/build && make install
 
 
-#&& cd /root/ORB_SLAM3 && sed -i 's/++11/++14/g' CMakeLists.txt \
-#&& sed -i "33s#.*#find_package(OpenCV 4.2)#" CMakeLists.txt \  
 
 RUN cd ${ROS_ROOT} \
   && colcon build --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release \
@@ -302,42 +300,24 @@ RUN cd /root/ros2_pre_installed \
   && rosdep install --from-paths src --ignore-src -r -y --rosdistro=$ROS_DISTRO --skip-keys="$ROSDEP_SKIP_PACKAGES" \
   && colcon build --merge-install --install-base "$ROS_ROOT/install" --cmake-args -DCMAKE_BUILD_TYPE=Release 
 
-
-
-# Install python3.8 and setup virtualenvironment for trajectory evaluation using package:
-# https://github.com/MichaelGrupp/evo/wiki/evo_traj
-RUN mkdir ~/traj_eval && cd ~/traj_eval \
-    && apt install -y python3.8 && python3.8 -m pip install virtualenv \
-    && virtualenv --python="/usr/bin/python3.8" "./" \ 
-    && source ~/traj_eval/bin/activate \
-    && pip install evo --upgrade --no-binary evo && deactivate
-
-
 #--packages-up-to-regex nav2* rtabmap* --packages-skip pcl_ros 
 
+RUN cd /root && mkdir -p /root/colcon_ws/src && cd /root/colcon_ws/src \
+    && git clone https://github.com/zang09/ORB_SLAM3_ROS2.git orbslam3_ros2 \
+    && SITE_PACKAGES="/opt/ros/foxy/install/lib/python3.6/site-packages/" \
+    && ORB_SLAM3_ROOT_DIR="/root/ORB_SLAM3" \
+    && cd /root/colcon_ws/src/orbslam3_ros2 \
+    && sed -i "5s#.*#set(ENV{PYTHONPATH} $SITE_PACKAGES)#" CMakeLists.txt \
+    && sed -i "8s#.*#set(ORB_SLAM3_ROOT_DIR $ORB_SLAM3_ROOT_DIR)#" ./CMakeModules/FindORB_SLAM3.cmake \
+    && cd /root/colcon_ws && . $ROS_ROOT/install/local_setup.bash && . $ROS_ROOT/install/setup.bash \
+    && colcon build --symlink-install --packages-select orbslam3
 # behaviortree_cpp_v3 gazebo* nav2* navigation2 smac_planner octomap_msgs octomap_ros rtabmap*
 #&& git clone --branch foxy https://github.com/luxonis.depthai-ros.git \
 
 
-#RUN sudo wget -qO- https://docs.luxonis.com/install_dependencies.sh | bash \
-#    && cd /root && git clone https://github.com/luxonis/depthai-python.git 
+RUN sudo wget -qO- https://docs.luxonis.com/install_dependencies.sh | bash \
+    && cd /root && git clone https://github.com/luxonis/depthai-python.git 
 
-#RUN cd /root && mkdir -p /root/colcon_ws/src 
-#COPY ./orbslam3_ros2 /root/colcon_ws/src 
-#RUN SITE_PACKAGES="/opt/ros/foxy/install/lib/python3.6/site-packages/" \
-#    && ORB_SLAM3_ROOT_DIR="/root/ORB_SLAM3" \
-#    && cd /root/colcon_ws/src/orbslam3_ros2 \
-#    && sed -i "5s#.*#set(ENV{PYTHONPATH} $SITE_PACKAGES)#" CMakeLists.txt \
-#    && sed -i "8s#.*#set(ORB_SLAM3_ROOT_DIR $ORB_SLAM3_ROOT_DIR)#" ./CMakeModules/FindORB_SLAM3.cmake \
-#    && cd /root/colcon_ws && . $ROS_ROOT/install/local_setup.bash && . $ROS_ROOT/install/setup.bash \
-#    && colcon build --symlink-install --packages-select orbslam3
-
-#RUN cd ~/colcon_ws/src/orbslam3_ros2/vocabulary/ && tar -xvzf ORBvoc.txt.tar.gz 
-RUN mkdir -p /root/colcon_ws/src
-
-COPY ./ros_entrypoint.sh /
-
-ENTRYPOINT ["/ros_entrypoint.sh"]
-CMD ["bash"]
+RUN cd ~/colcon_ws/src/orbslam3_ros2/vocabulary/ && tar -xvzf ORBvoc.txt.tar.gz 
 
 WORKDIR /root/colcon_ws

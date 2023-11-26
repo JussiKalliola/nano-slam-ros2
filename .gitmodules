@@ -1,0 +1,6 @@
+[submodule "orbslam3/orbslam3_ros2"]
+	path = orbslam3/orbslam3_ros2
+	url = https://github.com/JussiKalliola/ORB_SLAM3_ROS2.git
+[submodule "orbslam3/ORB_SLAM3"]
+	path = orbslam3/ORB_SLAM3
+	url = https://github.com/JussiKalliola/ORB_SLAM3.git
