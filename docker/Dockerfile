@@ -15,7 +15,7 @@ ARG TARGET_BUILD
 SHELL ["/bin/bash", "-c"] 
 ENV SKIP_ROSDEP=""
 ENV TARGET_BUILD=$TARGET_BUILD
-
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib/"
 # https://github.com/NVIDIA-AI-IOT/ros2_jetson/blob/main/docker/DockerFile.l4tbase.ros2.foxy
 # https://docs.ros.org/en/foxy/Installation/Alternatives/Ubuntu-Development-Setup.html#id9
 # https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html
@@ -336,9 +336,6 @@ RUN mkdir ~/traj_eval && cd ~/traj_eval \
 RUN mkdir -p /root/colcon_ws/src
 
 COPY ./ros_entrypoint.sh /
-
-ENV TARGET_BUILD="test"
-
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]
