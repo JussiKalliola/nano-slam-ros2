@@ -27,11 +27,11 @@ uint64 mn_number_of_opt
 
 # Variables used by the keyframe database
 uint64 mn_loop_query
-int32 mn_loop_qords
+int32 mn_loop_words
 float32 m_loop_score
 uint64 mn_reloc_query
 int32 mn_reloc_words
-float32 mn_reloca_score
+float32 mn_reloc_score
 uint64 mn_merge_query
 int32 mn_merge_words
 float32 m_merge_score
@@ -42,17 +42,17 @@ float32 m_place_recognition_score
 bool mb_current_place_recognition
 
 # Variables used by loop closing
-#Sophus::SE3f mTcwGBA;
-#Sophus::SE3f mTcwBefGBA;
+#std_msgs/Float32MultiArray m_tcw_gba #Sophus::SE3f mTcwGBA;
+#std_msgs/Float32MultiArray m_tcw_bef_gba #Sophus::SE3f mTcwBefGBA;
 geometry_msgs/Vector3 m_vwb_gba
 geometry_msgs/Vector3 m_vwb_bef_gba
 #IMU::Bias mBiasGBA;
 uint64 mn_ba_global_for_kf
 
 # Variables used by merging
-#Sophus::SE3f mTcwMerge;
-#Sophus::SE3f mTcwBefMerge;
-#Sophus::SE3f mTwcBefMerge;
+#std_msgs/Float32MultiArray m_tcw_merge #Sophus::SE3f mTcwMerge;
+#std_msgs/Float32MultiArray m_tcw_bef_merge #Sophus::SE3f mTcwBefMerge;
+#std_msgs/Float32MultiArray m_twc_bef_merge #Sophus::SE3f mTwcBefMerge;
 geometry_msgs/Vector3 m_vwb_merge
 geometry_msgs/Vector3 m_vwb_bef_merge
 #IMU::Bias mBiasMerge;
@@ -79,8 +79,8 @@ sensor_msgs/Image m_dist_coef
 int32 n #const
 
 # KeyPoints, stereo coordinate and descriptors (all associated by an index)
-#const std::vector<cv::KeyPoint> mvKeys;
-#const std::vector<cv::KeyPoint> mvKeysUn;
+#std_msgs/Float32MultiArray mv_keys #const std::vector<cv::KeyPoint> mvKeys;
+#std_msgs/Float32MultiArray mv_keys_yb #const std::vector<cv::KeyPoint> mvKeysUn;
 float32[] mvu_right #const std::vector<float> mvuRight; // negative value for monocular points
 float32[] mv_depth #const std::vector<float> mvDepth; // negative value for monocular points
 sensor_msgs/Image m_descriptors #const cv::Mat mDescriptors;
@@ -90,7 +90,7 @@ sensor_msgs/Image m_descriptors #const cv::Mat mDescriptors;
 #DBoW2::FeatureVector mFeatVec;
 
 # Pose relative to parent (this is computed when bad flag is activated)
-#Sophus::SE3f mTcp;
+#std_msgs/Float32MultiArray m_tcp #Sophus::SE3f mTcp;
 
 # Scale
 int32 mn_scale_levels #const int mnScaleLevels;
@@ -123,7 +123,7 @@ int32 mn_dataset
 #KeyFrame[] mvp_merge_cand_kfs #std::vector <KeyFrame*> mvpMergeCandKFs;
 
 
-
+# ------------------------------------------------------------------------
 # protected
 
 #Sophus::SE3<float> mTcw;
