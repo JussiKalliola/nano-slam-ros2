@@ -21,9 +21,16 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(Eigen3 3.1.0 REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
+
+# Add include directories for the helper file
+include_directories(
+  include
+)
+
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Atlas.msg"
@@ -32,9 +39,20 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/MapPoint.msg"
   "msg/KeyFrameDatabase.msg"
   "msg/KeyFrame.msg"
-  DEPENDENCIES geometry_msgs sensor_msgs std_msgs
+  "msg/IMUBias.msg"
+  "msg/IMUPreintegrated.msg"
+  "msg/Matrix.msg"
+  "msg/IntTuple.msg"
+  "msg/KeyValuePair.msg"
+  "msg/BowVector.msg"
+  "msg/BowFeatureVector.msg"
+  DEPENDENCIES geometry_msgs sensor_msgs std_msgs Eigen3
 )
 
+# Install headers
+install(DIRECTORY include/
+  DESTINATION include/orbslam3_interfaces/
+)
 
 
 if(BUILD_TESTING)

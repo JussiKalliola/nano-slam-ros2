@@ -42,7 +42,7 @@ geometry_msgs/Vector3 m_normal_vector_merge
 float64 m_inv_depth
 float64 m_init_u
 float64 m_init_v
-KeyFrame mp_host_kf
+#KeyFrame mp_host_kf
 
 # std::mutex m_global_mutex
 
@@ -53,7 +53,7 @@ uint32 mn_origin_map_id
 geometry_msgs/Vector3 m_world_pos
 
 # Keyframes observing the point and associated index in keyframe
-# std::map<KeyFrame*, std::tuple<int,int>> m_observations # check how to convert to ros2
+KeyValuePair[] m_observations # std::map<KeyFrame*, std::tuple<int,int>> m_observations
 
 # For save relation without pointer, this is necessary for save/load function
 # std::map<long unsignet int, int> m_backup_observations_id1 # maybe do another msg type with uint64, int and make this as array
@@ -66,7 +66,7 @@ geometry_msgs/Vector3 m_normal_vector
 sensor_msgs/Image m_descriptor
 
 # Refernce KeyFrame
-KeyFrame mp_ref_kf
+#KeyFrame mp_ref_kf
 uint64 m_backup_ref_kf_id
 
 # Tracking counters

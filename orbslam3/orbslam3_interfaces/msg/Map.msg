@@ -1,49 +1,66 @@
-# From public
-KeyFrame[] mvp_keyframe_origins
-uint64[] mv_backup_keyframe_origins_id
-KeyFrame mp_first_region_kf
+KeyFrame[] mvp_keyframe_origins           # vector<KeyFrame*> mvpKeyFrameOrigins;
+uint64[] mv_backup_keyframe_origins_id    # vector<unsigned long int> mvBackupKeyFrameOriginsId;
+KeyFrame mp_first_region_kf               # KeyFrame* mpFirstRegionKF;
+                                          # std::mutex mMutexMapUpdate;
 
-# This avoid that two points are created simultaneously in seperate threads (id conflict)
-# mutex m_mutex_point_creation # Check what can be done with this one
+# This avoid that two points are created simultaneously in separate threads (id conflict)
+                                          # std::mutex mMutexPointCreation;
 
-bool mb_fail
+bool mb_fail                              # bool mbFail;
 
-uint64 n_next_id
+# Size of the thumbnail (always in power of 2)
+int32 thumb_width                         # static const int THUMB_WIDTH = 512;
+int32 thumb_height                        # static const int THUMB_HEIGHT = 512;
 
-# From protected
-uint64 mn_id
+uint64 n_next_id                          # static long unsigned int nNextId;
 
-#MapPoint mvp_backup_map_points
-KeyFrame mvp_backup_keyframes
+# DEBUG: show KFs which are used in LBA
+uint64[] ms_opt_kfs                       # std::set<long unsigned int> msOptKFs;
+uint64[] ms_fixed_kfs                     # std::set<long unsigned int> msFixedKFs;
 
-KeyFrame mp_kf_initial
-KeyFrame mp_kf_flower_id
+# protected:
 
-uint64 mn_backup_kf_initial_id
-uint64 mn_backup_kf_lower_id
+uint32 mn_id                              # long unsigned int mnId;
 
-#MapPoint[] mvp_reference_map_points
+MapPoint[] msp_map_points                 # std::set<MapPoint*> mspMapPoints;
+KeyFrame[] msp_keyframes                  # std::set<KeyFrame*> mspKeyFrames;
 
-bool mb_imu_initialized
+# Save/load, the set structure is broken in libboost 1.58 for ubuntu 16.04, a vector is serializated
+MapPoint[] mvp_backup_map_points          # std::vector<MapPoint*> mvpBackupMapPoints;
+MapPoint[] mvp_backup_keyframes           # std::vector<KeyFrame*> mvpBackupKeyFrames;
 
-int32 mn_map_change
-int32 mn_map_change_notified
+KeyFrame mp_kf_initial                    # KeyFrame* mpKFinitial;
+KeyFrame mp_kf_lower_id                   # KeyFrame* mpKFlowerID;
 
-uint64 mn_init_kf_id
-uint64 mn_max_kf_id
+uint64 mn_backup_kf_initial_id            # unsigned long int mnBackupKFinitialID;
+uint64 mn_backup_kf_lower_id              # unsigned long int mnBackupKFlowerID;
 
-# index related to a big change in the map (loop closure, global ba)
-int32 mn_big_change_idx
+MapPoint[] mvp_reference_map_points       # std::vector<MapPoint*> mvpReferenceMapPoints;
 
-bool m_is_in_use
-bool m_has_thumbnail
-bool mb_bad
+bool mb_imu_initialized                   # bool mbImuInitialized;
 
-bool mb_is_inertial
-bool mb_imu_ba1
-bool mb_imu_ba2
+int32 mn_map_change                       # int mnMapChange;
+int32 mn_map_change_notified              # int mnMapChangeNotified;
+ 
+uint64 mn_init_kf_id                      # long unsigned int mnInitKFid;
+uint64 mn_max_kf_id                       # long unsigned int mnMaxKFid;
+# long unsigned int mnLastLoopKFid;
+
+# Index related to a big change in the map (loop closure, global BA)
+int32 mn_big_change_idx                   # int mnBigChangeIdx;
 
 
+# View of the map in aerial sight (for the AtlasViewer)
+                                          # GLubyte* mThumbnail;
 
-MapPoint mvp_backup_map_points
-MapPoint[] mvp_reference_map_points
+bool m_is_in_use                          # bool mIsInUse;
+bool m_has_thumbnail                      # bool mHasTumbnail;
+bool m_bad                                # bool mbBad = false;
+
+bool mb_is_inertial                       # bool mbIsInertial;
+bool mb_imu_ba1                           # bool mbIMU_BA1;
+bool mb_imu_ba2                           # bool mbIMU_BA2;
+
+# Mutex
+# std::mutex mMutexMap;
+

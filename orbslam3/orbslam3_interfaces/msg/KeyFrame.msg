@@ -42,20 +42,20 @@ float32 m_place_recognition_score
 bool mb_current_place_recognition
 
 # Variables used by loop closing
-#std_msgs/Float32MultiArray m_tcw_gba #Sophus::SE3f mTcwGBA;
-#std_msgs/Float32MultiArray m_tcw_bef_gba #Sophus::SE3f mTcwBefGBA;
+geometry_msgs/Pose m_tcw_gba #Sophus::SE3f mTcwGBA;
+geometry_msgs/Pose m_tcw_bef_gba #Sophus::SE3f mTcwBefGBA;
 geometry_msgs/Vector3 m_vwb_gba
 geometry_msgs/Vector3 m_vwb_bef_gba
-#IMU::Bias mBiasGBA;
+IMUBias m_bias_gba #IMU::Bias mBiasGBA;
 uint64 mn_ba_global_for_kf
 
 # Variables used by merging
-#std_msgs/Float32MultiArray m_tcw_merge #Sophus::SE3f mTcwMerge;
-#std_msgs/Float32MultiArray m_tcw_bef_merge #Sophus::SE3f mTcwBefMerge;
-#std_msgs/Float32MultiArray m_twc_bef_merge #Sophus::SE3f mTwcBefMerge;
+geometry_msgs/Pose m_tcw_merge #Sophus::SE3f mTcwMerge;
+geometry_msgs/Pose m_tcw_bef_merge #Sophus::SE3f mTcwBefMerge;
+geometry_msgs/Pose m_twc_bef_merge #Sophus::SE3f mTwcBefMerge;
 geometry_msgs/Vector3 m_vwb_merge
 geometry_msgs/Vector3 m_vwb_bef_merge
-#IMU::Bias mBiasMerge;
+IMUBias m_bias_merge #IMU::Bias mBiasMerge;
 uint64 mn_merge_corrected_for_kf
 uint64 mn_merge_for_kf
 float32 mf_scale_merge
@@ -79,18 +79,18 @@ sensor_msgs/Image m_dist_coef
 int32 n #const
 
 # KeyPoints, stereo coordinate and descriptors (all associated by an index)
-#std_msgs/Float32MultiArray mv_keys #const std::vector<cv::KeyPoint> mvKeys;
-#std_msgs/Float32MultiArray mv_keys_yb #const std::vector<cv::KeyPoint> mvKeysUn;
+geometry_msgs/Pose2D[] mv_keys #const std::vector<cv::KeyPoint> mvKeys;
+geometry_msgs/Pose2D[] mv_keys_un #const std::vector<cv::KeyPoint> mvKeysUn;
 float32[] mvu_right #const std::vector<float> mvuRight; // negative value for monocular points
 float32[] mv_depth #const std::vector<float> mvDepth; // negative value for monocular points
 sensor_msgs/Image m_descriptors #const cv::Mat mDescriptors;
 
 # BoW
-#DBoW2::BowVector mBowVec;
-#DBoW2::FeatureVector mFeatVec;
+BowVector[] m_bow_vec #DBoW2::BowVector mBowVec;
+BowFeatureVector[] m_feat_vec #DBoW2::FeatureVector mFeatVec;
 
 # Pose relative to parent (this is computed when bad flag is activated)
-#std_msgs/Float32MultiArray m_tcp #Sophus::SE3f mTcp;
+geometry_msgs/Pose m_tcp #Sophus::SE3f mTcp;
 
 # Scale
 int32 mn_scale_levels #const int mnScaleLevels;
@@ -110,7 +110,7 @@ int32 mn_max_y #const int mnMaxY;
 #KeyFrame m_prev_kf
 #KeyFrame m_next_kf
 
-#IMU::Preintegrated* mpImuPreintegrated;
+IMUPreintegrated mp_imu_preintegrated #IMU::Preintegrated* mpImuPreintegrated;
 #IMU::Calib mImuCalib;
 
 uint32 mn_origin_map_id
@@ -126,48 +126,51 @@ int32 mn_dataset
 # ------------------------------------------------------------------------
 # protected
 
-#Sophus::SE3<float> mTcw;
-#Eigen::Matrix3f mRcw;
-#Sophus::SE3<float> mTwc;
-#Eigen::Matrix3f mRwc;
+geometry_msgs/Pose m_tcw #Sophus::SE3<float> mTcw;
+geometry_msgs/Quaternion m_rcw #Eigen::Matrix3f mRcw;
+geometry_msgs/Pose m_twc #Sophus::SE3<float> mTwc;
+geometry_msgs/Quaternion m_rwc #Eigen::Matrix3f mRwc;
 
 # IMU position
-#Eigen::Vector3f mOwb;
+geometry_msgs/Vector3 m_owb #Eigen::Vector3f mOwb;
 # Velocity (Only used for inertial SLAM)
-#Eigen::Vector3f mVw;
+geometry_msgs/Vector3 m_vw #Eigen::Vector3f mVw;
 bool mb_has_velocity
 
 # Transformation matrix between cameras in stereo fisheye
-#Sophus::SE3<float> mTlr;
-#Sophus::SE3<float> mTrl;
+geometry_msgs/Pose m_tlr #Sophus::SE3<float> mTlr;
+geometry_msgs/Pose m_trl #Sophus::SE3<float> mTrl;
 
 # Imu bias
-#IMU::Bias mImuBias;
+IMUBias m_imu_bias #IMU::Bias mImuBias;
 
 # MapPoints associated to keypoints
-#1MapPoint[] mvp_map_points #std::vector<MapPoint*> mvpMapPoints;
+MapPoint[] mvp_map_points #std::vector<MapPoint*> mvpMapPoints;
 # For save relation without pointer, this is necessary for save/load function
 int64[] mv_backup_map_points_id #std::vector<long long int> mvBackupMapPointsId;
 
 # BoW
-KeyFrameDatabase mp_key_frame_db #KeyFrameDatabase* mpKeyFrameDB;
+#KeyFrameDatabase mp_key_frame_db #KeyFrameDatabase* mpKeyFrameDB;
 #ORBVocabulary* mpORBvocabulary;
 
 # Grid over the image to speed up feature matching
 #std::vector< std::vector <std::vector<size_t> > > mGrid;
 
 #std::map<KeyFrame*,int> mConnectedKeyFrameWeights;
-#KeyFrame[] mvp_orfered_connected_keyframes #std::vector<KeyFrame*> mvpOrderedConnectedKeyFrames;
+#KeyFrame[] mvp_ordered_connected_keyframes #std::vector<KeyFrame*> mvpOrderedConnectedKeyFrames;
+
 int32[] mv_ordered_weights #std::vector<int> mvOrderedWeights;
+
 # For save relation without pointer, this is necessary for save/load function
 #std::map<long unsigned int, int> mBackupConnectedKeyFrameIdWeights;
 
 # Spanning Tree and Loop Edges
-bool mb_first_connection #bool mbFirstConnection;
+#bool mb_first_connection #bool mbFirstConnection;
 #KeyFrame mp_parent #KeyFrame* mpParent;
 #KeyFrame[] msp_childrens #std::set<KeyFrame*> mspChildrens;
 #KeyFrame[] msp_loop_edges #std::set<KeyFrame*> mspLoopEdges;
 #KeyFrame[] msp_merge_edges #std::set<KeyFrame*> mspMergeEdges;
+
 # For save relation without pointer, this is necessary for save/load function
 int64 m_backup_parent_id #long long int mBackupParentId;
 uint64[] mv_backup_childrens_id #std::vector<long unsigned int> mvBackupChildrensId;
@@ -179,7 +182,7 @@ bool mb_not_erase #bool mbNotErase;
 bool mb_to_be_erased #bool mbToBeErased;
 bool mb_bad #bool mbBad;    
 
-float32 m_half_baseline #float mHalfBaseline; // Only for visualization
+#float32 m_half_baseline #float mHalfBaseline; // Only for visualization
 
 #Map mp_map #Map* mpMap;
 
@@ -212,7 +215,7 @@ int32[] mv_right_to_left_match #std::vector<int> mvLeftToRightMatch, mvRightToLe
 #Sophus::SE3f GetRelativePoseTlr();
 
 # KeyPoints in the right image (for stereo fisheye, coordinates are needed)
-#const std::vector<cv::KeyPoint> mvKeysRight;
+geometry_msgs/Pose2D[] mv_keys_right #const std::vector<cv::KeyPoint> mvKeysRight;
 
 int32 n_left
 int32 n_right #const int NLeft, NRight;
