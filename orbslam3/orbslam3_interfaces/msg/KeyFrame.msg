@@ -119,6 +119,8 @@ string m_name_file
 
 int32 mn_dataset
 
+uint64[] mvp_loop_cand_kfs_id
+uint64[] mvp_merge_cand_kfs_id
 #KeyFrame[] mvp_loop_cand_kfs #std::vector <KeyFrame*> mvpLoopCandKFs;
 #KeyFrame[] mvp_merge_cand_kfs #std::vector <KeyFrame*> mvpMergeCandKFs;
 
@@ -154,15 +156,16 @@ int64[] mv_backup_map_points_id #std::vector<long long int> mvBackupMapPointsId;
 #ORBVocabulary* mpORBvocabulary;
 
 # Grid over the image to speed up feature matching
-#std::vector< std::vector <std::vector<size_t> > > mGrid;
+Grid3D m_grid #std::vector< std::vector <std::vector<size_t> > > mGrid;
 
 #std::map<KeyFrame*,int> mConnectedKeyFrameWeights;
-#KeyFrame[] mvp_ordered_connected_keyframes #std::vector<KeyFrame*> mvpOrderedConnectedKeyFrames;
+uint64[] mvp_ordered_connected_keyframes_id #std::vector<KeyFrame*> mvpOrderedConnectedKeyFrames;
 
 int32[] mv_ordered_weights #std::vector<int> mvOrderedWeights;
 
 # For save relation without pointer, this is necessary for save/load function
 #std::map<long unsigned int, int> mBackupConnectedKeyFrameIdWeights;
+IntTuple[] m_backup_connected_keyframe_id_weights 
 
 # Spanning Tree and Loop Edges
 #bool mb_first_connection #bool mbFirstConnection;
@@ -185,18 +188,19 @@ bool mb_bad #bool mbBad;
 #float32 m_half_baseline #float mHalfBaseline; // Only for visualization
 
 #Map mp_map #Map* mpMap;
+uint64 mp_map_id
 
 # Backup variables for inertial
 int64 m_backup_prev_kf_id #long long int mBackupPrevKFId;
 int64 m_backup_next_kf_id #long long int mBackupNextKFId;
-#IMU::Preintegrated mBackupImuPreintegrated;
+IMUPreintegrated m_backup_imu_preintegrated #IMU::Preintegrated mBackupImuPreintegrated;
 
 # Backup for Cameras
 uint32 mn_backup_id_camera 
 uint32 mn_backup_id_camera2 #unsigned int mnBackupIdCamera, mnBackupIdCamera2;
 
 # Calibration
-# Eigen::Matrix3f mK_;
+Matrix m_k_calib # Eigen::Matrix3f mK_;
 
 # Mutex
 #std::mutex mMutexPose; // for pose, velocity and biases
@@ -220,4 +224,5 @@ geometry_msgs/Pose2D[] mv_keys_right #const std::vector<cv::KeyPoint> mvKeysRigh
 int32 n_left
 int32 n_right #const int NLeft, NRight;
 
-#std::vector< std::vector <std::vector<size_t> > > mGridRight;
+# Not needed for monocular. Check how to take nulls into consideration
+#Grid3D m_grid_right #std::vector< std::vector <std::vector<size_t> > > mGridRight;

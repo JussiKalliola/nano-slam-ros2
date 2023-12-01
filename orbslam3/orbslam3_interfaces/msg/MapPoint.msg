@@ -43,6 +43,7 @@ float64 m_inv_depth
 float64 m_init_u
 float64 m_init_v
 #KeyFrame mp_host_kf
+uint64 mp_host_kf_id
 
 # std::mutex m_global_mutex
 
@@ -56,8 +57,8 @@ geometry_msgs/Vector3 m_world_pos
 KeyValuePair[] m_observations # std::map<KeyFrame*, std::tuple<int,int>> m_observations
 
 # For save relation without pointer, this is necessary for save/load function
-# std::map<long unsignet int, int> m_backup_observations_id1 # maybe do another msg type with uint64, int and make this as array
-# std::map<long unsigned int, int> m_backup_observations_id2
+IntTuple[] m_backup_observations_id1 # std::map<long unsignet int, int> m_backup_observations_id1 # maybe do another msg type with uint64, int and make this as array
+IntTuple[] m_backup_observations_id2 # std::map<long unsigned int, int> m_backup_observations_id2
 
 # Mean viewing direction
 geometry_msgs/Vector3 m_normal_vector
@@ -84,6 +85,7 @@ int64 m_backup_replaced_id
 float32 mf_min_distance
 float32 mf_max_distance
 
+uint64 mp_map_id
 #Map mp_map
 
 # mutex

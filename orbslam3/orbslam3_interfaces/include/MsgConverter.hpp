@@ -15,7 +15,7 @@
 #include "orbslam3_interfaces/msg/key_value_pair.hpp"
 #include "orbslam3_interfaces/msg/bow_feature_vector.hpp"
 #include "orbslam3_interfaces/msg/bow_vector.hpp"
-
+#include "orbslam3_interfaces/msg/grid3_d.hpp"
 
 #include "std_msgs/msg/string.hpp"
 #include "std_msgs/msg/header.hpp"
@@ -59,16 +59,18 @@ class MsgConverter {
   using KeyValuePair = orbslam3_interfaces::msg::KeyValuePair;
   using BowFeatVec = orbslam3_interfaces::msg::BowFeatureVector;
   using BowVec = orbslam3_interfaces::msg::BowVector;
+  using Grid3D = orbslam3_interfaces::msg::Grid3D;
 
   using OrbKeyFrame = ORB_SLAM3::KeyFrame;
   using OrbMapPoint = ORB_SLAM3::MapPoint;
+  using OrbMap = ORB_SLAM3::Map;
   //using OrbIMU = ORB_SLAM3::IMU;
 
   public:
     
     //static IMU ORBSLAM3ImuToROS(IMU)
     
-    static MapPoint ORBSLAM3MapPointToROS(OrbMapPoint* pMp) {
+    static MapPoint ORBSLAM3MapPointToROS(OrbMapPoint* pMp, long unsigned int hostKfId=-1) {
       MapPoint msgMp;
       
       // public
@@ -121,10 +123,16 @@ class MsgConverter {
       msgMp.m_inv_depth = pMp->mInvDepth;
       msgMp.m_init_u = pMp->mInitU;
       msgMp.m_init_v = pMp->mInitV;
-      //KeyFrame mp_host_kf
+      //KeyFrame mp_host_kf           // This one we have as mp_host_kf_id
       
-      // std::mutex m_global_mutex
-      
+      OrbKeyFrame* mpHostKf = pMp->mpHostKF;
+      if (hostKfId == -1) {
+        msgMp.mp_host_kf_id = (mpHostKf != nullptr) ? mpHostKf->mnId : -1;
+      } else {
+        msgMp.mp_host_kf_id = hostKfId;
+      }
+
+      std::cout << "MapPoint origin id" << std::endl;
       msgMp.mn_origin_map_id = pMp->mnOriginMapId;
       
       std::cout << "MapPoint protected" << std::endl;
@@ -137,9 +145,10 @@ class MsgConverter {
       msgMp.m_observations = MapToKeyValPairROS(pMp->GetObservations()); // std::map<KeyFrame*, std::tuple<int,int>> m_observations # check how to convert to ros2
       
       // For save relation without pointer, this is necessary for save/load function
-      // std::map<long unsignet int, int> m_backup_observations_id1 # maybe do another msg type with uint64, int and make this as array
-      // std::map<long unsigned int, int> m_backup_observations_id2
-      
+      msgMp.m_backup_observations_id1 = MapToIntTupleROS(pMp->GetObservationsBackup1()); // std::map<long unsignet int, int> m_backup_observations_id1 # maybe do another msg type with uint64, int and make this as array
+      msgMp.m_backup_observations_id2 = MapToIntTupleROS(pMp->GetObservationsBackup2()); // std::map<long unsigned int, int> m_backup_observations_id2
+                                    // Both of these we have as m_observations
+
       // Mean viewing direction
       msgMp.m_normal_vector = EigenVector3fToVector3(pMp->GetNormal());
       
@@ -147,7 +156,7 @@ class MsgConverter {
       msgMp.m_descriptor = CVMatToImage(pMp->GetDescriptor());
       
       // Refernce KeyFrame
-      //KeyFrame mp_ref_kf
+      //KeyFrame mp_ref_kf          // This one we have as m_backup_ref_kf_id
       msgMp.m_backup_ref_kf_id = pMp->GetReferenceKeyFrame()->mnId;
       
       std::cout << "MapPoint Tracking counters" << std::endl;
@@ -159,9 +168,7 @@ class MsgConverter {
       std::cout << "MapPoint isbad?" << std::endl;
       // Bad flag (we do not currently erase MapPoint from memory)
       msgMp.mb_bad = pMp->isBad();
-      //MapPoint mp_replaced
-      
-
+      //MapPoint mp_replaced        // This one we have as m_bakup_replaced_id
       std::cout << "MapPoint Get Replaced?" << std::endl;
       // For save relation without pointer, this is necessary for save/load function
       OrbMapPoint* pKfr = pMp->GetReplaced();
@@ -173,16 +180,10 @@ class MsgConverter {
       msgMp.mf_max_distance = pMp->GetMaxDistanceInvariance();
       
       std::cout << "MapPoint end" << std::endl;
-      //Map mp_map
-      
-      // mutex
-      // std::mutex m_mutex_pos
-      // std::mutex m_mutex_features
-      // std::mutex m_mutex_map
-      
-      
-      //Map mp_map
-      
+      //Map mp_map                  // This one we have as mp_map_id 
+      OrbMap* pM = pMp->GetMap();
+      msgMp.mp_map_id = (pM != nullptr) ? pM->GetId() : -1; 
+
       return msgMp;
     }  
 
@@ -310,8 +311,11 @@ class MsgConverter {
       // Preintegrated IMU measurements from previous keyframe
       //KeyFrame m_prev_kf
       //KeyFrame m_next_kf
+      if(pKf->mpImuPreintegrated != nullptr) {
 
-      //msgKf.mp_imu_preintegrated = OrbImuPreintToROS(pKf->mpImuPreintegrated); //IMU::Preintegrated* mpImuPreintegrated;
+        msgKf.mp_imu_preintegrated = OrbImuPreintToROS(pKf->mpImuPreintegrated); //IMU::Preintegrated* mpImuPreintegrated;
+        msgKf.m_backup_imu_preintegrated = OrbImuPreintToROS(pKf->mpImuPreintegrated);//IMU::Preintegrated mBackupImuPreintegrated;
+      }
       //IMU::Calib mImuCalib;
 
       msgKf.mn_origin_map_id = pKf->mnOriginMapId;
@@ -319,9 +323,26 @@ class MsgConverter {
       msgKf.m_name_file = pKf->mNameFile;
         
       msgKf.mn_dataset = pKf->mnDataset;
-
+      
+      
       //KeyFrame[] mvp_loop_cand_kfs #std::vector <KeyFrame*> mvpLoopCandKFs;
       //KeyFrame[] mvp_merge_cand_kfs #std::vector <KeyFrame*> mvpMergeCandKFs;
+      std::vector<OrbKeyFrame*> mvpLoopCandKFs=pKf->mvpLoopCandKFs;
+      std::vector<long unsigned int> mvpLoopCandKFsId;
+      
+      std::vector<OrbKeyFrame*> mvpMergeCandKFs=pKf->mvpMergeCandKFs;
+      std::vector<long unsigned int> mvpMergeCandKFsId;
+
+      for (const auto& kf : mvpLoopCandKFs) {
+        mvpLoopCandKFsId.push_back(kf->mnId);
+      }
+
+      for (const auto& kf : mvpMergeCandKFs) {
+        mvpMergeCandKFsId.push_back(kf->mnId);
+      }
+
+      msgKf.mvp_loop_cand_kfs_id = mvpLoopCandKFsId;
+      msgKf.mvp_merge_cand_kfs_id = mvpMergeCandKFsId;
 
       std::cout << "end of first public" << std::endl;
       // ------------------------------------------------------------------------
@@ -358,7 +379,7 @@ class MsgConverter {
       std::vector<long int> msgMpsBackup;
       mps = pKf->GetMapPoints();
       for (const auto& mp : mps) {
-        msgMps.push_back(ORBSLAM3MapPointToROS(mp));
+        msgMps.push_back(ORBSLAM3MapPointToROS(mp, pKf->mnId));
         msgMpsBackup.push_back(mp->mnId);
       }
       
@@ -374,14 +395,17 @@ class MsgConverter {
 
 
       // Grid over the image to speed up feature matching
-      //std::vector< std::vector <std::vector<size_t> > > mGrid;
+      msgKf.m_grid = toGrid3D(pKf->GetMGrid()); //std::vector< std::vector <std::vector<size_t> > > mGrid;
 
-
-      //std::map<KeyFrame*,int> mConnectedKeyFrameWeights;
-      //KeyFrame[] mvp_orfered_connected_keyframes #std::vector<KeyFrame*> mvpOrderedConnectedKeyFrames;      
+      //std::map<KeyFrame*,int> mConnectedKeyFrameWeights;                    // Done in m_backup_connected_keyframe_id_weights
       
-      std::vector<OrbKeyFrame*> mvpOrderedConnectedKeyFrames;
-      mvpOrderedConnectedKeyFrames = pKf->GetVectorCovisibleKeyFrames();
+      std::vector<OrbKeyFrame*> mvpOrderedConnectedKeyFrames = pKf->GetVectorCovisibleKeyFrames();
+      std::vector<long unsigned int> mvpOrderedConnectedKeyFramesId;
+      for (OrbKeyFrame* kf : mvpOrderedConnectedKeyFrames) {
+        mvpOrderedConnectedKeyFramesId.push_back(kf->mnId);
+      }
+      msgKf.mvp_ordered_connected_keyframes_id = mvpOrderedConnectedKeyFramesId; //std::vector<KeyFrame*> mvpOrderedConnectedKeyFrames;      
+      
       std::vector<int> mvOrderedWeights;
 
       for(OrbKeyFrame* kf : mvpOrderedConnectedKeyFrames) {
@@ -391,8 +415,8 @@ class MsgConverter {
       
       std::cout << "after weights" << std::endl;
       // For save relation without pointer, this is necessary for save/load function
-      //std::map<long unsigned int, int> mBackupConnectedKeyFrameIdWeights;
-
+      msgKf.m_backup_connected_keyframe_id_weights = MapToIntTupleROS(pKf->GetBackupConnectedKeyFrameIdWeights()); //std::map<long unsigned int, int> mBackupConnectedKeyFrameIdWeights;
+      
       // Spanning Tree and Loop Edges
       //bool mb_first_connection //bool mbFirstConnection;
       //KeyFrame mp_parent //KeyFrame* mpParent;
@@ -445,6 +469,8 @@ class MsgConverter {
       //float32 m_half_baseline //float mHalfBaseline; // Only for visualization
 
       // Map mp_map //Map* mpMap;
+      OrbMap* pM = pKf->GetMap();
+      msgKf.mp_map_id = (pM != nullptr) ? pM->GetId() : -1; 
       
       // Backup variables for inertial
       OrbKeyFrame* pKfPrev = pKf->mPrevKF;
@@ -453,7 +479,6 @@ class MsgConverter {
       msgKf.m_backup_prev_kf_id = (pKfPrev != nullptr) ? pKfPrev->mnId : -1;
       msgKf.m_backup_next_kf_id = (pKfNext != nullptr) ? pKfNext->mnId : -1;
 
-      //IMU::Preintegrated mBackupImuPreintegrated;
 
       // Backup for Cameras
       ORB_SLAM3::GeometricCamera* mpCamera = pKf->mpCamera;
@@ -464,7 +489,7 @@ class MsgConverter {
 
       std::cout << "Backup for cams" << std::endl;
       // Calibration
-      //Eigen::Matrix3f mK_;
+      msgKf.m_k_calib = EigenMatrix3ToROS(pKf->GetCalibrationMatrix()); //Eigen::Matrix3f mK_;
 
 
       // ---------------------------------------------------------------------------------
@@ -481,11 +506,31 @@ class MsgConverter {
       msgKf.n_left = pKf->NLeft;
       msgKf.n_right = pKf->NRight;//const int NLeft, NRight;
 
-      //std::vector< std::vector <std::vector<size_t> > > mGridRight;
+
+      // Figure how to take nulls into consideration with grids. Not needed for monocular.
+      //msgKf.m_grid_right = toGrid3D(pKf->mGridRight); //std::vector< std::vector <std::vector<size_t> > > mGridRight;
 
       std::cout << "in the end of the message." << std::endl;
       return msgKf;
 
+    }
+
+    static Grid3D toGrid3D(std::vector<std::vector<std::vector<size_t>>> g) {
+      Grid3D msgG;
+
+      msgG.width = g.size();
+      msgG.height = g[0].size();
+      msgG.depth = g[0][0].size();
+
+      for (const auto& vec1 : g) {
+          for (const auto& vec2 : vec1) {
+              for (const auto& val : vec2) {
+                  msgG.data.push_back(val);
+              }
+          }
+      }
+
+      return msgG;
     }
 
     static geomPose SophusSE3fToPose(Sophus::SE3f sP) {
@@ -528,6 +573,25 @@ class MsgConverter {
       return rKps;
     }
 
+    static MatrixROS EigenMatrix3ToROS(Eigen::Matrix3f M) {
+      MatrixROS msgM;    
+
+      int rows = M.rows();
+      int columns = M.cols();
+      int size = rows*columns;
+      float flattenedArray[size];
+      
+      std::vector<float> flattenedVector(M.data(), M.data() + size);
+
+      
+      msgM.rows = rows;
+      msgM.columns = columns;
+      msgM.data = flattenedVector;
+
+      return msgM;
+    }
+
+
     static sensImage CVMatToImage(cv::Mat M) {
       cv_bridge::CvImage Ib;
       sensImage I;
@@ -552,18 +616,77 @@ class MsgConverter {
     }
 
 
-    //static IMUPreint OrbImuPreintToROS(ORB_SLAM3::IMU::Preintegrated* piImu) {
-    //  IMUPreint msgPiImu;
-    //  msgPiImu.d_t = piImu->dT;
-    //  const int Cc = static_cast<int>(piImu->C.cols());
-    //  const int Cr = static_cast<int>(piImu->C.rows());
-    //  msgPiImu.c = MatrixTypeConverter<Cc, Cr>::EigenMatrixToROS(piImu->C);
-    //  //msgPiImu.info = MatrixTypeConverter<piImu->Info.rows(), piImu->Info.cols()>::EigenMatrixToROS(piImu->Info);
-    //  //msgPiImu.nga = MatrixTypeConverter<piImu->Nga.rows(), piImu->Nga.cols()>::EigenMatrixToROS(piImu->Nga);
-    //  //msgPiImu.nga_walk = MatrixTypeConverter<piImu->NgaWalk.rows(), piImu->NgaWalk.cols()>::EigenMatrixToROS(piImu->NgaWalk);
+    static IMUPreint OrbImuPreintToROS(ORB_SLAM3::IMU::Preintegrated* piImu) {
+      IMUPreint msgPiImu;
+      msgPiImu.d_t = piImu->dT;
 
-    //  return msgPiImu;
-    //}
+      MatrixROS C;
+      int rowsC= piImu->C.rows();
+      int columnsC = piImu->C.cols();
+      int sizeC = rowsC * columnsC;
+      std::vector<float> flattenedVectorC(piImu->C.data(), piImu->C.data()+sizeC);
+      
+      C.rows = rowsC;
+      C.columns = columnsC;
+      C.data = flattenedVectorC;
+      
+      msgPiImu.c = C;
+      
+
+      MatrixROS Info;
+      int rowsInfo = piImu->Info.rows();
+      int columnsInfo = piImu->Info.cols();
+      int sizeInfo = rowsInfo * columnsInfo;
+      std::vector<float> flattenedVectorInfo(piImu->Info.data(), piImu->Info.data()+sizeInfo);
+      
+      Info.rows = rowsInfo;
+      Info.columns = columnsInfo;
+      Info.data = flattenedVectorInfo;
+      
+      msgPiImu.info = Info;
+
+
+      // Diagonal matrix so doesnt work like this, figure out other way.
+      //MatrixROS Nga, NgaWalk;
+      //int rowsNga = piImu->Nga.rows();
+      //int columnsNga = piImu->Nga.cols();
+      //int sizeNga = rowsNga * columnsNga;
+      //std::vector<float> flattenedVectorNga(piImu->Nga.data(), piImu->Nga.data()+sizeNga);
+      //Nga.data = flattenedVectorNga;
+      //msgPiImu.nga = Nga;
+
+
+      msgPiImu.b = OrbImuBiasToROS(piImu->GetOriginalBias());
+      msgPiImu.d_r = EigenMatrix3ToROS(piImu->GetOriginalDeltaRotation()); // Eigen::Matrix3f dR;
+      msgPiImu.d_v = EigenVector3fToVector3(piImu->GetOriginalDeltaVelocity());
+      msgPiImu.d_p = EigenVector3fToVector3(piImu->GetOriginalDeltaPosition()); // Eigen::Vector3f dV, dP; 
+      msgPiImu.j_rg = EigenMatrix3ToROS(piImu->JRg);
+      msgPiImu.j_vg = EigenMatrix3ToROS(piImu->JVg);
+      msgPiImu.j_va = EigenMatrix3ToROS(piImu->JVa);
+      msgPiImu.j_pg = EigenMatrix3ToROS(piImu->JPg);
+      msgPiImu.j_pa = EigenMatrix3ToROS(piImu->JPa);// Eigen::Matrix3f JRg, JVg, JVa, JPg, JPa;
+      msgPiImu.avg_a = EigenVector3fToVector3(piImu->avgA);
+      msgPiImu.avg_w = EigenVector3fToVector3(piImu->avgW);// Eigen::Vector3f avgA, avgW;
+
+      // Updated bias 
+      msgPiImu.bu = OrbImuBiasToROS(piImu->GetUpdatedBias());
+      // Dif between original and updated bias
+      // This is used to compute the updated values of the preintegration
+      MatrixROS db;
+      Eigen::Matrix<float,6,1> delta_bias = piImu->GetDeltaBias();
+      int rowsdb= delta_bias.rows();
+      int columnsdb = delta_bias.cols();
+      int sizedb = rowsdb * columnsdb;
+      std::vector<float> flattenedVectordb(delta_bias.data(), delta_bias.data()+sizedb);
+      
+      db.rows =rowsdb;
+      db.columns =columnsdb;
+      db.data = flattenedVectordb;
+      
+      msgPiImu.db = db;
+
+      return msgPiImu;
+    }
     //
     //template <int Rows, int Cols>
     //struct MatrixTypeConverter {
@@ -586,6 +709,21 @@ class MsgConverter {
     //    return msgM;
     //  }
     //};
+
+    static std::vector<IntTuple> MapToIntTupleROS(std::map<long unsigned int, int> map) {
+      std::vector<IntTuple> msgIt;
+
+      for (const auto& entry : map) {
+        IntTuple t;
+        t.x1 = entry.first; //std::get<0>(entry.second);
+        t.x2 = entry.second; //std::get<1>(entry.second);
+
+        msgIt.push_back(t);
+      }
+
+      return msgIt;
+    }
+
 
     static std::vector<KeyValuePair> MapToKeyValPairROS(std::map<OrbKeyFrame*, std::tuple<int,int>> map) {
       std::vector<KeyValuePair> msgKvp;
