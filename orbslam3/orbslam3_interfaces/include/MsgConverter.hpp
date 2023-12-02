@@ -69,7 +69,13 @@ class MsgConverter {
   public:
     
     //static IMU ORBSLAM3ImuToROS(IMU)
-    
+    static OrbKeyFrame* ROSKeyFrameToORBSLAM3(KeyFrame::SharedPtr rKf) {
+      OrbKeyFrame* pOKf = new OrbKeyFrame();
+      
+      return pOKf;
+
+    }   
+
     static MapPoint ORBSLAM3MapPointToROS(OrbMapPoint* pMp, long unsigned int hostKfId=-1) {
       MapPoint msgMp;
       
