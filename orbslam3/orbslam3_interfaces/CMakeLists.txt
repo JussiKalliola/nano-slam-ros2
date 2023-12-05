@@ -47,6 +47,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/BowVector.msg"
   "msg/BowFeatureVector.msg"
   "msg/Grid3D.msg"
+  "msg/KeyPoint.msg"
   DEPENDENCIES geometry_msgs sensor_msgs std_msgs Eigen3
 )
 

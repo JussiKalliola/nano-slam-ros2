@@ -79,8 +79,8 @@ sensor_msgs/Image m_dist_coef
 int32 n #const
 
 # KeyPoints, stereo coordinate and descriptors (all associated by an index)
-geometry_msgs/Pose2D[] mv_keys #const std::vector<cv::KeyPoint> mvKeys;
-geometry_msgs/Pose2D[] mv_keys_un #const std::vector<cv::KeyPoint> mvKeysUn;
+KeyPoint[] mv_keys #const std::vector<cv::KeyPoint> mvKeys;
+KeyPoint[] mv_keys_un #const std::vector<cv::KeyPoint> mvKeysUn;
 float32[] mvu_right #const std::vector<float> mvuRight; // negative value for monocular points
 float32[] mv_depth #const std::vector<float> mvDepth; // negative value for monocular points
 sensor_msgs/Image m_descriptors #const cv::Mat mDescriptors;
@@ -219,7 +219,7 @@ int32[] mv_right_to_left_match #std::vector<int> mvLeftToRightMatch, mvRightToLe
 #Sophus::SE3f GetRelativePoseTlr();
 
 # KeyPoints in the right image (for stereo fisheye, coordinates are needed)
-geometry_msgs/Pose2D[] mv_keys_right #const std::vector<cv::KeyPoint> mvKeysRight;
+KeyPoint[] mv_keys_right #const std::vector<cv::KeyPoint> mvKeysRight;
 
 int32 n_left
 int32 n_right #const int NLeft, NRight;
