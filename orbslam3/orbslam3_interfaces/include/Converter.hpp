@@ -259,7 +259,8 @@ namespace Converter {
 
       static std::vector<std::vector<std::vector<size_t>>> Grid3DToVector(grid_3d rG) {
         std::vector<std::vector<std::vector<size_t>>> cppG;
-
+        
+        
         //msgG.width = g.size();
         //msgG.height = g[0].size();
         //msgG.depth = g[0][0].size();
@@ -289,7 +290,7 @@ namespace Converter {
       }
 
 
-      static std::vector<cv::KeyPoint> Pose2DVectorToCVKeypointVector(std::vector<keypoint> rKPs) {
+      static std::vector<cv::KeyPoint> KeypointVectorToCVKeypointVector(std::vector<keypoint> rKPs) {
         std::vector<cv::KeyPoint> cppKPs;
 
         for (const auto& rKP : rKPs) {
