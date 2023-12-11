@@ -23,77 +23,87 @@ namespace Converter {
     using orb_keyframe = ORB_SLAM3::KeyFrame;
 
     public:
-      static map OrbMapToRosMap(orb_map_point* opM) {
+      static map OrbMapToRosMap(orb_map* opM) {
         map rM;
-
         //KeyFrame[] mvp_keyframe_origins           // vector<KeyFrame*> mvpKeyFrameOrigins;
-        rM.mv_backup_keyframe_origins_id    // vector<unsigned long int> mvBackupKeyFrameOriginsId;
-        rM.mp_first_region_kf_id               // KeyFrame* mpFirstRegionKF;
+        rM.mv_backup_keyframe_origins_id;    // vector<unsigned long int> mvBackupKeyFrameOriginsId;
+        rM.mp_first_region_kf_id;               // KeyFrame* mpFirstRegionKF;
                                                   // std::mutex mMutexMapUpdate;
-
-
-        bool mb_fail                              // bool mbFail;
+        rM.mb_fail = opM->mbFail;                              // bool mbFail;
 
         // Size of the thumbnail (always in power of 2)
-        int32 thumb_width                         // static const int THUMB_WIDTH = 512;
-        int32 thumb_height                        // static const int THUMB_HEIGHT = 512;
+        rM.thumb_width = opM->THUMB_WIDTH;                         // static const int THUMB_WIDTH = 512;
+        rM.thumb_height = opM->THUMB_HEIGHT;                        // static const int THUMB_HEIGHT = 512;
 
-        uint64 n_next_id                          // static long unsigned int nNextId;
+        rM.n_next_id = opM->nNextId;                          // static long unsigned int nNextId;
 
         // DEBUG: show KFs which are used in LBA
-        uint64[] ms_opt_kfs                       // std::set<long unsigned int> msOptKFs;
-        uint64[] ms_fixed_kfs                     // std::set<long unsigned int> msFixedKFs;
+        rM.ms_opt_kfs = opM->GetOptKFs();                       // std::set<long unsigned int> msOptKFs;
+        rM.ms_fixed_kfs = opM->GetFixedKFs();                     // std::set<long unsigned int> msFixedKFs;
 
         // protected:
 
-        uint32 mn_id                              // long unsigned int mnId;
+        rM.mn_id = opM->GetId();                              // long unsigned int mnId;
 
         //MapPoint[] msp_map_points                 // std::set<MapPoint*> mspMapPoints;
         //KeyFrame[] msp_keyframes                  // std::set<KeyFrame*> mspKeyFrames;
 
         // Save/load, the set structure is broken in libboost 1.58 for ubuntu 16.04, a vector is serializated
-        uint64[] mvp_backup_map_points_ids          // std::vector<MapPoint*> mvpBackupMapPoints;
-        uint64[] mvp_backup_keyframes_ids           // std::vector<KeyFrame*> mvpBackupKeyFrames;
+        rM.mvp_backup_map_points_ids = opM->GetBackupMapPointsId();          // std::vector<MapPoint*> mvpBackupMapPoints;
+        rM.mvp_backup_keyframes_ids = opM->GetBackupKeyFrames();           // std::vector<KeyFrame*> mvpBackupKeyFrames;
 
         //KeyFrame mp_kf_initial                    // KeyFrame* mpKFinitial;
         //KeyFrame mp_kf_lower_id                   // KeyFrame* mpKFlowerID;
+        rM.mn_backup_kf_initial_id = opM->GetInitKFid();           // unsigned long int mnBackupKFinitialID;
+        rM.mn_backup_kf_lower_id = opM->GetBackupKFLowerID();               // unsigned long int mnBackupKFlowerID;
 
-        uint64 mn_backup_kf_initial_id            // unsigned long int mnBackupKFinitialID;
-        uint64 mn_backup_kf_lower_id              // unsigned long int mnBackupKFlowerID;
+        rM.mvp_reference_map_points_id = opM->GetBackupReferenceMapPointsId();      // std::vector<MapPoint*> mvpReferenceMapPoints;
 
-        uint64[] mvp_reference_map_points_id       // std::vector<MapPoint*> mvpReferenceMapPoints;
+        rM.mb_imu_initialized = opM->GetImuInitialized();                   // bool mbImuInitialized;
 
-        bool mb_imu_initialized                   // bool mbImuInitialized;
-
-        int32 mn_map_change                       // int mnMapChange;
-        int32 mn_map_change_notified              // int mnMapChangeNotified;
+        rM.mn_map_change  = opM->GetMapChange();                      // int mnMapChange;
+        rM.mn_map_change_notified = opM->GetMapChangeNotified();               // int mnMapChangeNotified;
          
-        uint64 mn_init_kf_id                      // long unsigned int mnInitKFid;
-        uint64 mn_max_kf_id                       // long unsigned int mnMaxKFid;
+        rM.mn_init_kf_id = opM->GetInitKFid();                    // long unsigned int mnInitKFid;
+        rM.mn_max_kf_id = opM->GetMaxKFid();                      // long unsigned int mnMaxKFid;
         // long unsigned int mnLastLoopKFid;
 
         // Index related to a big change in the map (loop closure, global BA)
-        int32 mn_big_change_idx                   // int mnBigChangeIdx;
+        rM.mn_big_change_idx = opM->GetBigChangeIdx();                   // int mnBigChangeIdx;
 
 
 
-        bool m_is_in_use                          // bool mIsInUse;
-        bool m_has_thumbnail                      // bool mHasTumbnail;
-        bool m_bad                                // bool mbBad = false;
+        rM.m_is_in_use = opM->IsInUse();                         // bool mIsInUse;
+        rM.m_has_thumbnail = opM->HasThumbnail();                      // bool mHasTumbnail;
+        rM.m_bad = opM->GetIsBad();                                // bool mbBad = false;
 
-        bool mb_is_inertial                       // bool mbIsInertial;
-        bool mb_imu_ba1                           // bool mbIMU_BA1;
-        bool mb_imu_ba2                           // bool mbIMU_BA2;
+        rM.mb_is_inertial = opM->IsInertial();                       // bool mbIsInertial;
+        rM.mb_imu_ba1 = opM->GetIniertialBA1();                           // bool mbIMU_BA1;
+        rM.mb_imu_ba2 = opM->GetIniertialBA2();                           // bool mbIMU_BA2;
 
 
 
 
         return rM;
       }
+      
+      static orb_map* RosMapToOrbMap(map::SharedPtr rM, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames) {
+        orb_map* opM;
+        if(rM->mn_init_kf_id != 0) {
+          std::cout << "mn init kf id " << rM->mn_init_kf_id << std::endl; 
+          opM = new orb_map(static_cast<int>(rM->mn_init_kf_id));
+        } else {
+          std::cout << "init with id 0" << std::endl;
+          opM = new orb_map();
+        } 
+        
+        return opM;
+
+      } 
 
   };
 
 };
 
 
-//endif
+#endif

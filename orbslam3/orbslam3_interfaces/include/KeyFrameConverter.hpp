@@ -57,7 +57,7 @@ namespace Converter {
 
     public: 
 
-      static orb_keyframe* ROSKeyFrameToORBSLAM3(keyframe::SharedPtr rKf, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames) {
+      static orb_keyframe* ROSKeyFrameToORBSLAM3(keyframe::SharedPtr rKf, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames, std::map<long unsigned int, orb_map*> mpOrbMaps) {
         
         bool bImu = rKf->b_imu;
 
@@ -264,7 +264,12 @@ namespace Converter {
 
         float mHalfBaseline = 0.0;//float mHalfBaseline = rKf->; // Only for visualization
 
-        ORB_SLAM3::Map* mpMap = nullptr;//Map* mpMap = rKf->;
+        orb_map* mpMap = nullptr;//Map* mpMap = rKf->;
+        std::cout << "\n\n =*=*=*=*=*=*=*=*=* " << rKf->mp_map_id << " =*=*=* " << mpOrbMaps.count(rKf->mp_map_id) << std::endl;
+        if (mpOrbMaps.count(rKf->mp_map_id) > 0) {
+          mpMap = mpOrbMaps[rKf->mp_map_id]; 
+          std::cout << "*==*=*=*=*=*=*=*=*=*=*=* " << mpMap->GetId() << std::endl;
+        }
 
         // Backup variables for inertial
         long long int mBackupPrevKFId = rKf->m_backup_prev_kf_id;
