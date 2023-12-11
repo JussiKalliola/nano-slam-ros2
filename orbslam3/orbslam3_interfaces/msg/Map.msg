@@ -1,6 +1,6 @@
-KeyFrame[] mvp_keyframe_origins           # vector<KeyFrame*> mvpKeyFrameOrigins;
+#KeyFrame[] mvp_keyframe_origins           # vector<KeyFrame*> mvpKeyFrameOrigins;
 uint64[] mv_backup_keyframe_origins_id    # vector<unsigned long int> mvBackupKeyFrameOriginsId;
-KeyFrame mp_first_region_kf               # KeyFrame* mpFirstRegionKF;
+uint64 mp_first_region_kf_id               # KeyFrame* mpFirstRegionKF;
                                           # std::mutex mMutexMapUpdate;
 
 # This avoid that two points are created simultaneously in separate threads (id conflict)
@@ -22,20 +22,20 @@ uint64[] ms_fixed_kfs                     # std::set<long unsigned int> msFixedK
 
 uint32 mn_id                              # long unsigned int mnId;
 
-MapPoint[] msp_map_points                 # std::set<MapPoint*> mspMapPoints;
-KeyFrame[] msp_keyframes                  # std::set<KeyFrame*> mspKeyFrames;
+#MapPoint[] msp_map_points                 # std::set<MapPoint*> mspMapPoints;
+#KeyFrame[] msp_keyframes                  # std::set<KeyFrame*> mspKeyFrames;
 
 # Save/load, the set structure is broken in libboost 1.58 for ubuntu 16.04, a vector is serializated
-MapPoint[] mvp_backup_map_points          # std::vector<MapPoint*> mvpBackupMapPoints;
-MapPoint[] mvp_backup_keyframes           # std::vector<KeyFrame*> mvpBackupKeyFrames;
+uint64[] mvp_backup_map_points_ids          # std::vector<MapPoint*> mvpBackupMapPoints;
+uint64[] mvp_backup_keyframes_ids           # std::vector<KeyFrame*> mvpBackupKeyFrames;
 
-KeyFrame mp_kf_initial                    # KeyFrame* mpKFinitial;
-KeyFrame mp_kf_lower_id                   # KeyFrame* mpKFlowerID;
+#KeyFrame mp_kf_initial                    # KeyFrame* mpKFinitial;
+#KeyFrame mp_kf_lower_id                   # KeyFrame* mpKFlowerID;
 
 uint64 mn_backup_kf_initial_id            # unsigned long int mnBackupKFinitialID;
 uint64 mn_backup_kf_lower_id              # unsigned long int mnBackupKFlowerID;
 
-MapPoint[] mvp_reference_map_points       # std::vector<MapPoint*> mvpReferenceMapPoints;
+uint64[] mvp_reference_map_points_id       # std::vector<MapPoint*> mvpReferenceMapPoints;
 
 bool mb_imu_initialized                   # bool mbImuInitialized;
 

@@ -330,13 +330,15 @@ namespace Converter {
       }
 
 
-      static std::map<orb_keyframe*, std::tuple<int,int>> MapToRosKeyValuePairVector(std::vector<key_value_pair> rKVP, orb_keyframe* kf) {
+      static std::map<orb_keyframe*, std::tuple<int,int>> KeyValuePairVectorToMap(std::vector<key_value_pair> rKVP, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames) {
         std::map<orb_keyframe*, std::tuple<int,int>> cppMap;
         
         for (const auto& kvp : rKVP)
         {
+          orb_keyframe* kf = mpOrbKeyFrames[kvp.key]; 
           cppMap.insert(std::make_pair(kf, std::make_tuple(kvp.value.x1, kvp.value.x2)));
         }
+        
         return cppMap;
       }
 
@@ -460,6 +462,110 @@ namespace Converter {
       } //DBoW2::FeatureVector mFeatVec;
   };
 
+  class RosToOrb {
+    public: 
+      static ORB_SLAM3::IMU::Bias RosBiasToOrbImuBias(imu_bias rB) {
+        ORB_SLAM3::IMU::Bias oB = ORB_SLAM3::IMU::Bias(rB.acc.x, rB.acc.y, rB.acc.z, rB.gyro.x, rB.gyro.y, rB.gyro.z);
+        
+        return oB;
+      }
+
+      static ORB_SLAM3::IMU::Preintegrated* RosPreIntegratedImuToOrbPreintegratedImu(imu_preintegrated rPiImu) {
+        ORB_SLAM3::IMU::Preintegrated oPiImu;
+        //msgPiImu.d_t = piImu->dT;
+
+        //ros_matrix C;
+        //int rowsC= piImu->C.rows();
+        //int columnsC = piImu->C.cols();
+        //int sizeC = rowsC * columnsC;
+        //std::vector<float> flattenedVectorC(piImu->C.data(), piImu->C.data()+sizeC);
+        //
+        //C.rows = rowsC;
+        //C.columns = columnsC;
+        //C.data = flattenedVectorC;
+        //
+        //msgPiImu.c = C;
+        //
+
+        //ros_matrix Info;
+        //int rowsInfo = piImu->Info.rows();
+        //int columnsInfo = piImu->Info.cols();
+        //int sizeInfo = rowsInfo * columnsInfo;
+        //std::vector<float> flattenedVectorInfo(piImu->Info.data(), piImu->Info.data()+sizeInfo);
+        //
+        //Info.rows = rowsInfo;
+        //Info.columns = columnsInfo;
+        //Info.data = flattenedVectorInfo;
+        //
+        //msgPiImu.info = Info;
+
+
+        //// Diagonal matrix so doesnt work like this, figure out other way.
+        ////ros_matrix Nga, NgaWalk;
+        ////int rowsNga = piImu->Nga.rows();
+        ////int columnsNga = piImu->Nga.cols();
+        ////int sizeNga = rowsNga * columnsNga;
+        ////std::vector<float> flattenedVectorNga(piImu->Nga.data(), piImu->Nga.data()+sizeNga);
+        ////Nga.data = flattenedVectorNga;
+        ////msgPiImu.nga = Nga;
+
+
+        //msgPiImu.b = ImuBiasToRosBias(piImu->GetOriginalBias());
+        //msgPiImu.d_r = CppToRos::EigenMatrix3ToMatrix(piImu->GetOriginalDeltaRotation()); // Eigen::Matrix3f dR;
+        //msgPiImu.d_v = CppToRos::EigenVector3fToVector3(piImu->GetOriginalDeltaVelocity());
+        //msgPiImu.d_p = CppToRos::EigenVector3fToVector3(piImu->GetOriginalDeltaPosition()); // Eigen::Vector3f dV, dP; 
+        //msgPiImu.j_rg = CppToRos::EigenMatrix3ToMatrix(piImu->JRg);
+        //msgPiImu.j_vg = CppToRos::EigenMatrix3ToMatrix(piImu->JVg);
+        //msgPiImu.j_va = CppToRos::EigenMatrix3ToMatrix(piImu->JVa);
+        //msgPiImu.j_pg = CppToRos::EigenMatrix3ToMatrix(piImu->JPg);
+        //msgPiImu.j_pa = CppToRos::EigenMatrix3ToMatrix(piImu->JPa);// Eigen::Matrix3f JRg, JVg, JVa, JPg, JPa;
+        //msgPiImu.avg_a = CppToRos::EigenVector3fToVector3(piImu->avgA);
+        //msgPiImu.avg_w = CppToRos::EigenVector3fToVector3(piImu->avgW);// Eigen::Vector3f avgA, avgW;
+
+        //// Updated bias 
+        //msgPiImu.bu = ImuBiasToRosBias(piImu->GetUpdatedBias());
+        //// Dif between original and updated bias
+        //// This is used to compute the updated values of the preintegration
+        //ros_matrix db;
+        //Eigen::Matrix<float,6,1> delta_bias = piImu->GetDeltaBias();
+        //int rowsdb= delta_bias.rows();
+        //int columnsdb = delta_bias.cols();
+        //int sizedb = rowsdb * columnsdb;
+        //std::vector<float> flattenedVectordb(delta_bias.data(), delta_bias.data()+sizedb);
+        //
+        //db.rows =rowsdb;
+        //db.columns =columnsdb;
+        //db.data = flattenedVectordb;
+        //
+        //msgPiImu.db = db;
+
+        return &oPiImu;
+      }
+
+      static DBoW2::BowVector RosBowVectorToDBoW2Vector(std::vector<bow_vector> rBv) {
+        DBoW2::BowVector oBv = DBoW2::BowVector();
+
+        for (const auto& x : rBv) {
+        oBv.addWeight(x.word_id, x.word_value);
+        }
+
+        return oBv;
+
+      } //DBoW2::bow_vectortor mBowVec;
+
+      static DBoW2::FeatureVector RosBowFeatureVectorToDBoW2FeatureVector( std::vector<bow_feature_vector> rBFv) {
+        DBoW2::FeatureVector oBFv = DBoW2::FeatureVector();
+
+        for(const auto& entry : rBFv) {
+         unsigned int node_id = entry.node_id;
+         for (const auto& feature : entry.features) {
+           oBFv.addFeature(node_id, feature);
+         }
+        }
+
+        return oBFv;
+      } //DBoW2::FeatureVector mFeatVec;
+  };
 };
 
 
