@@ -1,0 +1,20 @@
+uint64 map_id
+string system_id
+
+uint64 add_kf_id
+uint64 add_map_point_id
+bool set_imu_initialized
+uint64 erase_map_point_id
+uint64 erase_kf_id
+uint64[] set_reference_map_points_id
+bool inform_new_big_change
+uint64 set_init_kf_id
+bool clear_map
+uint64 set_bad_id
+bool set_intertial_sensor
+bool set_inertial_ba1
+bool set_inertial_ba2
+uint64 change_id
+bool increase_change_idx
+uint64 set_last_map_change_id
+

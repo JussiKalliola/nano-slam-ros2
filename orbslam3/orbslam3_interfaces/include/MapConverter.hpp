@@ -4,6 +4,7 @@
 
 #include "orbslam3_interfaces/msg/map_point.hpp"
 #include "orbslam3_interfaces/msg/map.hpp"
+#include "orbslam3_interfaces/msg/map_actions.hpp"
 
 #include "MapPoint.h"
 #include "Map.h"

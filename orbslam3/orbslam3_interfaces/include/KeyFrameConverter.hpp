@@ -16,6 +16,8 @@
 #include "orbslam3_interfaces/msg/bow_vector.hpp"
 #include "orbslam3_interfaces/msg/grid3_d.hpp"
 
+#include "orbslam3_interfaces/msg/key_frame_actions.hpp"
+
 #include "std_msgs/msg/string.hpp"
 #include "std_msgs/msg/header.hpp"
 #include "geometry_msgs/msg/pose.hpp"

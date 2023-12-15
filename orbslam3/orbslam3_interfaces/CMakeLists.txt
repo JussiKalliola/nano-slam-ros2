@@ -34,11 +34,15 @@ include_directories(
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Atlas.msg"
+  "msg/AtlasActions.msg"
   "msg/Map.msg"
+  "msg/MapActions.msg"
   "msg/Frame.msg"
   "msg/MapPoint.msg"
-  "msg/KeyFrameDatabase.msg"
+  "msg/MapPointActions.msg"
   "msg/KeyFrame.msg"
+  "msg/KeyFrameActions.msg"
+  "msg/KeyFrameDatabase.msg"
   "msg/IMUBias.msg"
   "msg/IMUPreintegrated.msg"
   "msg/Matrix.msg"
