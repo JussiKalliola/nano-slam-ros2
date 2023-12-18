@@ -27,7 +27,37 @@ namespace Parser {
   class Action {
     
     public:
+      /* KEYFRAME ACTION FUNCTIONS */
+      static kf_action FormKFActionRosMsg(int actionId, unsigned long int id) {
+        kf_action kfAMsg;
 
+        return kfAMsg;
+      }
+
+      static kf_action FormKFActionRosMsg(int actionId, bool boolAction) {
+        kf_action kfAMsg;
+
+        return kfAMsg;
+      }
+
+      static kf_action FormKFActionRosMsg(int actionId, unsigned long int id, long int vectorIdx) {
+        kf_action kfAMsg;
+
+        return kfAMsg;
+      }
+
+      static kf_action FormKFActionRosMsg(int actionId, Eigen::Vector3f t) {
+        kf_action kfAMsg;
+
+        return kfAMsg;
+      }
+
+      static kf_action FormKFActionRosMsg(int actionId, Sophus::SE3<float> p) {
+        kf_action kfAMsg;
+
+        return kfAMsg;
+      }
+      /* ATLAS ACTION FUNCTIONS */
       static atlas_action FormAtlasActionRosMsg(int actionId, bool boolAction) {
         atlas_action aMsg;
         aMsg.change_map_to_id = -1;
@@ -97,26 +127,26 @@ namespace Parser {
       static int parseAtlasAction(atlas_action::SharedPtr rAA, std::map<long unsigned int, ORB_SLAM3::Map*> mpOrbMaps, std::map<long unsigned int, ORB_SLAM3::KeyFrame*> mpOrbKeyFrames, std::map<long unsigned int, ORB_SLAM3::MapPoint*> mpOrbMapPoints) {
 
         if (rAA->add_map_point_id > 0) {
-          if (mpOrbMapPoints.find(rAA->add_map_point_id) == mpOrbMapPoints.end()) {
+          if (mpOrbMapPoints.find(rAA->add_map_point_id) != mpOrbMapPoints.end()) {
             return 0;
           }     
         }
 
 
         if (rAA->change_map_to_id > 0) {
-          if (mpOrbMaps.find(rAA->change_map_to_id) == mpOrbMaps.end()) {
+          if (mpOrbMaps.find(rAA->change_map_to_id) != mpOrbMaps.end()) {
             return 1;
           }
         }
 
         if (rAA->add_kf_id > 0) {
-          if (mpOrbKeyFrames.find(rAA->add_kf_id) == mpOrbKeyFrames.end()) {
+          if (mpOrbKeyFrames.find(rAA->add_kf_id) != mpOrbKeyFrames.end()) {
             return 2;
           }
         }
 
         if (rAA->set_map_bad_id > 0) {
-          if (mpOrbMaps.find(rAA->set_map_bad_id) == mpOrbMaps.end()) {
+          if (mpOrbMaps.find(rAA->set_map_bad_id) != mpOrbMaps.end()) {
             return 3;
           }
         }

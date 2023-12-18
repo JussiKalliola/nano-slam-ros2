@@ -2,10 +2,14 @@ uint64 kf_id
 string system_id
 
 bool compute_bow
+
 geometry_msgs/Pose set_pose
+
 geometry_msgs/Vector3 set_velocity
+
 int64 add_connection_id
-int32 add_connection_weight
+int64 add_connection_weight
+
 bool update_best_covisibles
 
 int64 add_map_point_mp_id         # map point id
