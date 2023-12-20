@@ -1,3 +1,4 @@
+string system_id
 #KeyFrame[] mvp_keyframe_origins           # vector<KeyFrame*> mvpKeyFrameOrigins;
 uint64[] mv_backup_keyframe_origins_id    # vector<unsigned long int> mvBackupKeyFrameOriginsId;
 uint64 mp_first_region_kf_id               # KeyFrame* mpFirstRegionKF;

@@ -112,6 +112,8 @@ else
   docker run  -it \
               --rm \
               --net=host \
+              --ipc=host \
+              --pid=host \
               --cap-add NET_ADMIN \
               --privileged \
               -e DISPLAY=$DISPLAY \

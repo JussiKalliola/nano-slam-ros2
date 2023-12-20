@@ -3,8 +3,10 @@ string system_id
 
 bool compute_bow
 
+bool bool_set_pose
 geometry_msgs/Pose set_pose
 
+bool bool_set_velocity
 geometry_msgs/Vector3 set_velocity
 
 int64 add_connection_id
@@ -44,6 +46,7 @@ bool set_bad_flag
 
 int64 erase_connection_id
 
+bool bool_set_new_bias
 IMUBias set_new_bias
 
 int64 update_map_id
