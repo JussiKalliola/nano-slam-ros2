@@ -172,13 +172,11 @@ namespace Converter {
         orb_keyframe* mPrevKF = nullptr; //KeyFrame* mPrevKF = rKf->;
         if (mpOrbKeyFrames.count(rKf->m_backup_prev_kf_id) > 0) {
           mPrevKF = mpOrbKeyFrames[rKf->m_backup_prev_kf_id]; 
-          std::cout << "*==*=*=*=*=*=*=*=*=*=*=* " << mPrevKF->mnId << std::endl;
         }
         
         orb_keyframe* mNextKF = nullptr;//KeyFrame* mNextKF = rKf->;
         if (mpOrbKeyFrames.count(rKf->m_backup_next_kf_id) > 0) {
           mNextKF = mpOrbKeyFrames[rKf->m_backup_next_kf_id]; 
-          std::cout << "*==*=*=*=*=*=*=*=*=*=*=* " << mNextKF->mnId << std::endl;
         }
 
         //ORB_SLAM3::IMU::Preintegrated* mpImuPreintegrated = nullptr; //IMU::Preintegrated* mpImuPreintegrated = rKf->;
@@ -237,6 +235,16 @@ namespace Converter {
         std::vector< std::vector <std::vector<size_t> > > mGrid = std::vector< std::vector <std::vector<size_t> > >();// std::vector< std::vector <std::vector<size_t> > > mGrid = rKf->;
 
         std::map<orb_keyframe*,int> mConnectedKeyFrameWeights = std::map<orb_keyframe*,int>();  //std::map<KeyFrame*,int> mConnectedKeyFrameWeights = rKf->;
+        
+        for(size_t i; i < rKf->mvp_ordered_connected_keyframes_id.size(); ++i)
+        {
+          unsigned long int kfId = rKf->mvp_ordered_connected_keyframes_id[i];
+          if(mpOrbKeyFrames.find(kfId) != mpOrbKeyFrames.end()) {
+            mConnectedKeyFrameWeights.insert(std::make_pair(mpOrbKeyFrames[kfId], rKf->mv_ordered_weights[i]));
+          }
+        }
+
+
         std::vector<orb_keyframe*> mvpOrderedConnectedKeyFrames = std::vector<orb_keyframe*>(); //std::vector<KeyFrame*> mvpOrderedConnectedKeyFrames = rKf->;
         std::vector<int> mvOrderedWeights = rKf->mv_ordered_weights;
         // For save relation without pointer, this is necessary for save/load function
@@ -267,10 +275,8 @@ namespace Converter {
         float mHalfBaseline = 0.0;//float mHalfBaseline = rKf->; // Only for visualization
 
         orb_map* mpMap = nullptr;//Map* mpMap = rKf->;
-        std::cout << "\n\n =*=*=*=*=*=*=*=*=* " << rKf->mp_map_id << " =*=*=* " << mpOrbMaps.count(rKf->mp_map_id) << std::endl;
         if (mpOrbMaps.count(rKf->mp_map_id) > 0) {
           mpMap = mpOrbMaps[rKf->mp_map_id]; 
-          std::cout << "*==*=*=*=*=*=*=*=*=*=*=* " << mpMap->GetId() << std::endl;
         }
 
         // Backup variables for inertial
@@ -312,11 +318,11 @@ namespace Converter {
             mnBackupIdCamera, mnBackupIdCamera2, mK_, mpCamera, mpCamera2, mvLeftToRightMatch, mvRightToLeftMatch, mvKeysRight, NLeft, NRight, mGridRight);
        
 
-        for(size_t i = 0; i < rKf->mvp_map_points.size(); ++i) {
-          map_point mp = rKf->mvp_map_points[i];
-          orb_map_point* oMp = MapPointConverter::RosMapPointToOrb(&mp, pOKf, mpOrbKeyFrames);
-          pOKf->AddMapPoint(oMp, 1);
-        }
+        //for(size_t i = 0; i < rKf->mvp_map_points.size(); ++i) {
+        //  map_point mp = rKf->mvp_map_points[i];
+        //  orb_map_point* oMp = MapPointConverter::RosMapPointToOrb(&mp, pOKf, mpOrbKeyFrames);
+        //  pOKf->AddMapPoint(oMp, 1);
+        //}
         
         //mpOrbKeyFrames.push_back(orb_keyframe);
         //For loop -> pOkf->AddConnection(ConvertConnRosToOrb(rKf->m_backup_connected_keyframe_id_weights ))

@@ -335,8 +335,10 @@ namespace Converter {
         
         for (const auto& kvp : rKVP)
         {
-          orb_keyframe* kf = mpOrbKeyFrames[kvp.key]; 
-          cppMap.insert(std::make_pair(kf, std::make_tuple(kvp.value.x1, kvp.value.x2)));
+          if(mpOrbKeyFrames.find(kvp.key) != mpOrbKeyFrames.end()) {
+            orb_keyframe* kf = mpOrbKeyFrames[kvp.key]; 
+            cppMap.insert(std::make_pair(kf, std::make_tuple(kvp.value.x1, kvp.value.x2)));
+          }
         }
         
         return cppMap;
