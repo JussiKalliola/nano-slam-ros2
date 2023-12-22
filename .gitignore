@@ -2,6 +2,7 @@
 /results/*
 /orbslam3/*
 /doxygen
+/ros_ws
 
 !datasets/.gitkeep
 !results/.gitkeep

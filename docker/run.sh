@@ -101,9 +101,8 @@ if [ $GPU_SUPPORT == 1 ]; then
               -v /run/user/1000:/run/user/1000 \
               -v $ROOT_DIR/datasets/:/root/datasets \
               -v $ROOT_DIR/results/:/root/results \
-              -v $ROOT_DIR/orbslam3/orbslam3_ros2/:/root/colcon_ws/src/orbslam3_ros2 \
-              -v $ROOT_DIR/orbslam3/orbslam3_interfaces/:/root/colcon_ws/src/orbslam3_interfaces \
-              -v $ROOT_DIR/orbslam3/ORB_SLAM3/:/root/ORB_SLAM3-dev \
+              -v $ROOT_DIR/orbslam3/:/root/colcon_ws/src \
+              -v $ROOT_DIR/thirdparty/ORB_SLAM3:/root/ORB_SLAM3-dev \
               --device=/dev/bus/usb:/dev/bus/usb \
               $REGISTRY/$IMAGE:$VERSION \
               bash
@@ -129,9 +128,9 @@ else
               -v /run/user/1000:/run/user/1000 \
               -v $ROOT_DIR/datasets/:/root/datasets \
               -v $ROOT_DIR/results/:/root/results \
-              -v $ROOT_DIR/orbslam3/orbslam3_ros2/:/root/colcon_ws/src/orbslam3_ros2 \
-              -v $ROOT_DIR/orbslam3/orbslam3_interfaces/:/root/colcon_ws/src/orbslam3_interfaces \
-              -v $ROOT_DIR/orbslam3/ORB_SLAM3:/root/ORB_SLAM3-dev \
+              -v $ROOT_DIR/ros_ws/:/root/colcon_ws \
+              -v $ROOT_DIR/orbslam3/:/root/colcon_ws/src \
+              -v $ROOT_DIR/thirdparty/ORB_SLAM3:/root/ORB_SLAM3-dev \
               --device=/dev/bus/usb:/dev/bus/usb \
               $REGISTRY/$IMAGE:$VERSION \
               bash

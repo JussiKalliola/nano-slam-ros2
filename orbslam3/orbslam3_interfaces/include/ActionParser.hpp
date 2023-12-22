@@ -7,6 +7,8 @@
 #include "orbslam3_interfaces/msg/key_frame.hpp"
 #include "orbslam3_interfaces/msg/key_frame_actions.hpp"
 
+#include "orbslam3_interfaces/msg/key_frame_database_actions.hpp"
+
 #include "MapPoint.h"
 #include "Map.h"
 #include "KeyFrame.h"
@@ -21,6 +23,7 @@ namespace Parser {
   using atlas = orbslam3_interfaces::msg::Atlas;
   using atlas_action = orbslam3_interfaces::msg::AtlasActions;
   using kf_action = orbslam3_interfaces::msg::KeyFrameActions;
+  using kf_db_action = orbslam3_interfaces::msg::KeyFrameDatabaseActions;
 
   using orb_map_point = ORB_SLAM3::MapPoint;
   using orb_map = ORB_SLAM3::Map;
@@ -261,8 +264,107 @@ namespace Parser {
           
         return -1;
       }
+      
 
 
+
+
+
+      /* KEYFRAME DATABASE FUNCTIONS */
+      static kf_db_action FormKFDBActionRosMsg(int actionId, bool boolAction)
+      {
+        kf_db_action kfdbActionMsg;
+
+        kfdbActionMsg.add_kf_id = -1;
+        kfdbActionMsg.erase_kf_id = -1;
+        kfdbActionMsg.clear = true; // this action can be only KeyFrameDatabase::clear()
+        kfdbActionMsg.clear_map_id = -1;
+      
+        return kfdbActionMsg;
+      }
+
+      static kf_db_action FormKFDBActionRosMsg(int actionId, unsigned long int id)
+      {
+        kf_db_action kfdbActionMsg;
+        
+        kfdbActionMsg.add_kf_id = -1;
+        kfdbActionMsg.erase_kf_id = -1;
+        kfdbActionMsg.clear_map_id = -1;
+        
+        if(actionId==0) kfdbActionMsg.add_kf_id = id;
+        if(actionId==1) kfdbActionMsg.erase_kf_id = id;
+        if(actionId==2) kfdbActionMsg.clear_map_id = id;
+      
+        return kfdbActionMsg;
+      }
+      
+      static kf_db_action FormKFDBActionRosMsg(int actionId, unsigned long int id, float minScore, std::vector<unsigned long int> vpLoopCandId, std::vector<unsigned long int> vpMergeCandId)
+      {
+        kf_db_action kfdbActionMsg;
+        
+        kfdbActionMsg.add_kf_id = -1;
+        kfdbActionMsg.erase_kf_id = -1;
+        kfdbActionMsg.clear_map_id = -1;
+        
+        kfdbActionMsg.detect_candidates = true;
+        kfdbActionMsg.detect_candidates_kf_id = id;
+        kfdbActionMsg.detect_candidates_min_score = minScore;
+        kfdbActionMsg.detect_candidates_loop_cand_ids = vpLoopCandId;
+        kfdbActionMsg.detect_candidates_merge_cand_ids = vpMergeCandId;
+
+      
+        return kfdbActionMsg;
+      }
+      
+      static kf_db_action FormKFDBActionRosMsg(int actionId, unsigned long int id, std::vector<unsigned long int> vpLoopCandId, std::vector<unsigned long int> vpMergeCandId, int n)
+      {
+        kf_db_action kfdbActionMsg;
+        
+        kfdbActionMsg.add_kf_id = -1;
+        kfdbActionMsg.erase_kf_id = -1;
+        kfdbActionMsg.clear_map_id = -1;
+        if(actionId==5) {
+          kfdbActionMsg.detect_best_candidates = true;
+          kfdbActionMsg.detect_best_candidates_kf_id = id;
+          kfdbActionMsg.detect_best_candidates_loop_cand_ids = vpLoopCandId;
+          kfdbActionMsg.detect_best_candidates_merge_cand_ids = vpMergeCandId;
+          kfdbActionMsg.detect_best_candidates_n_min_words = n;
+        } 
+
+        if(actionId==6) {
+          kfdbActionMsg.detect_n_best_candidates = true;
+          kfdbActionMsg.detect_n_best_candidates_kf_id = id;
+          kfdbActionMsg.detect_n_best_candidates_loop_cand_ids = vpLoopCandId;
+          kfdbActionMsg.detect_n_best_candidates_merge_cand_ids = vpMergeCandId;
+          kfdbActionMsg.detect_n_best_candidates_n_num_cands = n;
+        } 
+      
+        return kfdbActionMsg;
+      }
+      
+
+      static int parseKFDBAction(kf_db_action::SharedPtr rKfdb, std::map<long unsigned int, ORB_SLAM3::Map*> mpOrbMaps, std::map<long unsigned int, ORB_SLAM3::KeyFrame*> mpOrbKeyFrames, std::map<long unsigned int, ORB_SLAM3::MapPoint*> mpOrbMapPoints) {
+
+        if (rKfdb->add_kf_id > 0) {
+          if (mpOrbKeyFrames.find(rKfdb->add_kf_id) != mpOrbKeyFrames.end()) return 0;
+        }
+
+        if (rKfdb->erase_kf_id > 0) {
+          if (mpOrbKeyFrames.find(rKfdb->erase_kf_id) != mpOrbKeyFrames.end()) return 1;
+        }
+
+        if (rKfdb->clear) return 2;
+        
+        if (rKfdb->clear_map_id > 0) {
+          if (mpOrbMaps.find(rKfdb->clear_map_id) != mpOrbMaps.end()) return 3;
+        }
+
+        if (rKfdb->detect_candidates) return 4;
+        if (rKfdb->detect_best_candidates) return 5;
+        if (rKfdb->detect_n_best_candidates) return 6;
+          
+        return -1;
+      }
   };
 };
 

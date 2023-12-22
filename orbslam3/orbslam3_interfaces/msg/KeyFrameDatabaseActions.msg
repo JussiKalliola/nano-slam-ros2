@@ -1,0 +1,28 @@
+string system_id
+
+int64 add_kf_id
+
+int64 erase_kf_id
+
+bool clear
+
+int64 clear_map_id
+
+bool detect_candidates
+uint64 detect_candidates_kf_id
+float32 detect_candidates_min_score
+uint64[] detect_candidates_loop_cand_ids
+uint64[] detect_candidates_merge_cand_ids
+
+bool detect_best_candidates
+uint64 detect_best_candidates_kf_id
+uint64[] detect_best_candidates_loop_cand_ids
+uint64[] detect_best_candidates_merge_cand_ids
+int32 detect_best_candidates_n_min_words
+
+bool detect_n_best_candidates
+uint64 detect_n_best_candidates_kf_id
+uint64[] detect_n_best_candidates_loop_cand_ids
+uint64[] detect_n_best_candidates_merge_cand_ids
+int32 detect_n_best_candidates_n_num_cands
+

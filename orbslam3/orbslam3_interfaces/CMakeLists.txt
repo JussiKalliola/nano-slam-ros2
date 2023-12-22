@@ -43,6 +43,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/KeyFrame.msg"
   "msg/KeyFrameActions.msg"
   "msg/KeyFrameDatabase.msg"
+  "msg/KeyFrameDatabaseActions.msg"
   "msg/IMUBias.msg"
   "msg/IMUPreintegrated.msg"
   "msg/Matrix.msg"

@@ -3,6 +3,7 @@ results/
 docker/
 scripts/
 doxygen/
+ros_ws/
 README.md
 .git
 .gitignore
