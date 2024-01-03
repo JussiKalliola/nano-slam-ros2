@@ -1,3 +1,5 @@
+string system_id
+
 # public
 
 uint64 mn_id
@@ -43,7 +45,7 @@ float64 m_inv_depth
 float64 m_init_u
 float64 m_init_v
 #KeyFrame mp_host_kf
-uint64 mp_host_kf_id
+int64 mp_host_kf_id
 
 # std::mutex m_global_mutex
 
@@ -68,7 +70,7 @@ sensor_msgs/Image m_descriptor
 
 # Refernce KeyFrame
 #KeyFrame mp_ref_kf
-uint64 m_backup_ref_kf_id
+int64 m_backup_ref_kf_id
 
 # Tracking counters
 int32 mn_visible
@@ -85,7 +87,7 @@ int64 m_backup_replaced_id
 float32 mf_min_distance
 float32 mf_max_distance
 
-uint64 mp_map_id
+int64 mp_map_id
 #Map mp_map
 
 # mutex

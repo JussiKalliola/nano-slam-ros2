@@ -21,7 +21,7 @@ namespace Converter {
 
     public:
       static map_point ORBSLAM3MapPointToROS(orb_map_point* pMp, long unsigned int hostKfId=-1) {
-        map_point msgMp;
+        map_point msgMp = FormDefaultMapPointMessage();
         
         // public
         // std::cout << "MapPoint public" << std::endl;
@@ -66,7 +66,6 @@ namespace Converter {
         // Variables used by merging
         msgMp.m_pos_merge = CppToRos::EigenVector3fToVector3(pMp->mPosMerge);
         msgMp.m_normal_vector_merge = CppToRos::EigenVector3fToVector3(pMp->mNormalVectorMerge);
-        
         // std::cout << "MapPoint vars used by inverse depht optimizatino" << std::endl;
         // For inverse depth optimization
         msgMp.m_inv_depth = pMp->mInvDepth;
@@ -74,12 +73,7 @@ namespace Converter {
         msgMp.m_init_v = pMp->mInitV;
         //KeyFrame mp_host_kf           // This one we have as mp_host_kf_id
         
-        orb_keyframe* mpHostKf = pMp->mpHostKF;
-        if (hostKfId == -1) {
-          msgMp.mp_host_kf_id = (mpHostKf != nullptr) ? mpHostKf->mnId : -1;
-        } else {
-          msgMp.mp_host_kf_id = hostKfId;
-        }
+        msgMp.mp_host_kf_id = (pMp->mpHostKF != nullptr) ? pMp->mpHostKF->mnId : -1;
 
         // std::cout << "MapPoint origin id" << std::endl;
         msgMp.mn_origin_map_id = pMp->mnOriginMapId;
@@ -136,7 +130,7 @@ namespace Converter {
         return msgMp;
       } 
 
-      static orb_map_point* RosMapPointToOrb(map_point* rMp, orb_keyframe* hostKf, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames) {
+      static orb_map_point* RosMapPointToOrb(map_point::SharedPtr rMp, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames, std::map<long unsigned int, orb_map*> mpOrbMaps, std::map<long unsigned int, orb_map_point*> mpOrbMapPoints, bool* bUnprocessed) {
         
         long unsigned int mnId = rMp->mn_id;
         long int mnFirstKFid = rMp->mn_first_kf_id;
@@ -169,7 +163,14 @@ namespace Converter {
         double mInvDepth = rMp->m_inv_depth;
         double mInitU = rMp->m_init_u;
         double mInitV = rMp->m_init_v;
-        orb_keyframe* mpHostKF = (hostKf != nullptr) ? hostKf : nullptr;
+        
+        orb_keyframe* mpHostKF = nullptr;
+        if(mpOrbKeyFrames.find(rMp->mp_host_kf_id) != mpOrbKeyFrames.end()) {
+          mpHostKF = mpOrbKeyFrames[rMp->mp_host_kf_id];
+        } else if(rMp->mp_host_kf_id > -1) {
+          *bUnprocessed = true;
+        }
+        
         unsigned int mnOriginMapId = rMp->mn_origin_map_id;
         Eigen::Vector3f mWorldPos = RosToCpp::Vector3ToEigenVector3f(rMp->m_world_pos);
         std::map<orb_keyframe*,std::tuple<int,int> > mObservations = RosToCpp::KeyValuePairVectorToMap(rMp->m_observations, mpOrbKeyFrames);
@@ -177,19 +178,36 @@ namespace Converter {
         std::map<long unsigned int, int> mBackupObservationsId2 = RosToCpp::IntTupleVectorToMap(rMp->m_backup_observations_id2);
         Eigen::Vector3f mNormalVector = RosToCpp::Vector3ToEigenVector3f(rMp->m_normal_vector);
         cv::Mat mDescriptor = RosToCpp::ImageToCVMat(rMp->m_descriptor);
+        
         orb_keyframe* mpRefKF = nullptr;
-        if (mpOrbKeyFrames.count(rMp->m_backup_ref_kf_id) > 0) {
-          mpRefKF = mpOrbKeyFrames[rMp->m_backup_ref_kf_id]; 
+        if(mpOrbKeyFrames.find(rMp->m_backup_ref_kf_id) != mpOrbKeyFrames.end()) {
+          mpRefKF = mpOrbKeyFrames[rMp->m_backup_ref_kf_id];
+        } else if(rMp->m_backup_ref_kf_id > -1) {
+          *bUnprocessed = true;
         }
+
         long unsigned int mBackupRefKFId = rMp->m_backup_ref_kf_id;
         int mnVisible = rMp->mn_visible;
         int mnFound = rMp->mn_found;
         bool mbBad = rMp->mb_bad;
+        
         orb_map_point* mpReplaced = nullptr;
+        if(mpOrbMapPoints.find(rMp->m_backup_replaced_id) != mpOrbMapPoints.end()) {
+          mpReplaced = mpOrbMapPoints[rMp->m_backup_replaced_id];
+        } else if(rMp->m_backup_replaced_id > -1) {
+          *bUnprocessed = true;
+        }
+        
         long long int mBackupReplacedId = rMp->m_backup_replaced_id;
         float mfMinDistance = rMp->mf_min_distance;
         float mfMaxDistance = rMp->mf_max_distance;
+        
         ORB_SLAM3::Map* mpMap = nullptr;
+        if(mpOrbMaps.find(rMp->mp_map_id) != mpOrbMaps.end()) {
+          mpMap = mpOrbMaps[rMp->mp_map_id];
+        } else if(rMp->mp_map_id > -1) {
+          *bUnprocessed = true;
+        }
 
 
         orb_map_point* oMp = new orb_map_point(mnId, mnFirstKFid, mnFirstFrame, nObs, mTrackProjX, mTrackProjY, mTrackDepth, mTrackDepthR, mTrackProjXR, mTrackProjYR, mbTrackInView, mbTrackInViewR, mnTrackScaleLevel, mnTrackScaleLevelR, mTrackViewCos, mTrackViewCosR, mnTrackReferenceForFrame, mnLastFrameSeen, mnBALocalForKF, mnFuseCandidateForKF, mnLoopPointForKF, mnCorrectedByKF, mnCorrectedReference, mPosGBA, mnBAGlobalForKF, mnBALocalForMerge, mPosMerge, mNormalVectorMerge, mInvDepth, mInitU, mInitV, mpHostKF, mnOriginMapId, mWorldPos, mObservations, mBackupObservationsId1, mBackupObservationsId2, mNormalVector, mDescriptor, mpRefKF, mBackupRefKFId, mnVisible, mnFound, mbBad, mpReplaced, mBackupReplacedId, mfMinDistance, mfMaxDistance, mpMap);
@@ -197,6 +215,47 @@ namespace Converter {
         return oMp;
       }
 
+      static map_point FormDefaultMapPointMessage()
+      {
+        map_point msgMp;
+
+        msgMp.mp_host_kf_id = -1;
+        msgMp.m_backup_ref_kf_id = -1; 
+        msgMp.m_backup_replaced_id= -1;       
+        msgMp.mp_map_id = -1;
+
+        return msgMp;
+
+      }
+      
+      static void FillMapPointData(orb_map_point* mopMp, map_point::SharedPtr mrpMp, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames, std::map<long unsigned int, orb_map*> mpOrbMaps, std::map<long unsigned int, orb_map_point*> mpOrbMapPoints, bool* bUnprocessed) 
+      {
+
+        if(mpOrbKeyFrames.find(mrpMp->mp_host_kf_id) != mpOrbKeyFrames.end()) {
+          mopMp->mpHostKF = mpOrbKeyFrames[mrpMp->mp_host_kf_id];
+        } else if(mrpMp->mp_host_kf_id > -1) {
+          *bUnprocessed = true;
+        }
+         
+        if(mpOrbKeyFrames.find(mrpMp->m_backup_ref_kf_id) != mpOrbKeyFrames.end()) {
+          mopMp->SetMpRefKF(mpOrbKeyFrames[mrpMp->m_backup_ref_kf_id]);
+        } else if(mrpMp->m_backup_ref_kf_id > -1) {
+          *bUnprocessed = true;
+        }
+
+        
+        if(mpOrbMapPoints.find(mrpMp->m_backup_replaced_id) != mpOrbMapPoints.end()) {
+          mopMp->Replace(mpOrbMapPoints[mrpMp->m_backup_replaced_id], true);
+        } else if(mrpMp->m_backup_replaced_id > -1) {
+          *bUnprocessed = true;
+        }
+        
+        if(mpOrbMaps.find(mrpMp->mp_map_id) != mpOrbMaps.end()) {
+          mopMp->UpdateMap(mpOrbMaps[mrpMp->mp_map_id], true);
+        } else if(mrpMp->mp_map_id > -1) {
+          *bUnprocessed = true;
+        }
+      }
   };
 
 };
