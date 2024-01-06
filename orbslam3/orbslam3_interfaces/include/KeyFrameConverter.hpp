@@ -146,20 +146,11 @@ namespace Converter {
         const std::vector<float> mvuRight = rKf->mvu_right; // negative value for monocular points
         const std::vector<float> mvDepth = rKf->mv_depth; // negative value for monocular points
         const cv::Mat mDescriptors = RosToCpp::ImageToCVMat(rKf->m_descriptors);
-        std::cout << rKf->m_descriptors.height << std::endl;         
 
 
         //BoW
         DBoW2::BowVector mBowVec = RosToOrb::RosBowVectorToDBoW2Vector(rKf->m_bow_vec); //DBoW2::BowVector mBowVec = rKf->;
-        if(mBowVec.empty())
-        {
-          std::cout << "mBowVec is empty." << std::endl;
-        }
         DBoW2::FeatureVector mFeatVec = RosToOrb::RosBowFeatureVectorToDBoW2FeatureVector(rKf->m_feat_vec); //DBoW2::FeatureVector mFeatVec = rKf->;
-        if(mFeatVec.empty())
-        {
-          std::cout << "mFeatVec is empty." << std::endl;
-        }
 
         // Pose relative to parent (this is computed when bad flag is activated)
         Sophus::SE3f mTcp = RosToCpp::PoseToSophusSE3f(rKf->m_tcp);
@@ -271,7 +262,7 @@ namespace Converter {
         std::map<long unsigned int, int> mBackupConnectedKeyFrameIdWeights = RosToCpp::IntTupleVectorToMap(rKf->m_backup_connected_keyframe_id_weights);
 
         // Spanning Tree and Loop Edges
-        bool mbFirstConnection = false;//bool mbFirstConnection = rKf->mb_first_connection;
+        bool mbFirstConnection = rKf->mb_first_connection;//bool mbFirstConnection = rKf->mb_first_connection;
        
         orb_keyframe* mpParent = nullptr; //KeyFrame* mpParent = rKf->;
         if(mpOrbKeyFrames.find(rKf->m_backup_parent_id) != mpOrbKeyFrames.end()) {
@@ -462,7 +453,6 @@ namespace Converter {
         msgKf.m_dist_coef = CppToRos::CVMatToImage(pKf->mDistCoef);
 
 
-
         // Number of KeyPoints
         msgKf.n = pKf->N; //const
 
@@ -499,8 +489,8 @@ namespace Converter {
         //KeyFrame m_next_kf
         if(pKf->mpImuPreintegrated != nullptr) {
 
-          msgKf.mp_imu_preintegrated = OrbToRos::ImuPreintegratedToRosPreintegrated(pKf->mpImuPreintegrated); //IMU::Preintegrated* mpImuPreintegrated;
-          msgKf.m_backup_imu_preintegrated = OrbToRos::ImuPreintegratedToRosPreintegrated(pKf->mpImuPreintegrated);//IMU::Preintegrated mBackupImuPreintegrated;
+          //msgKf.mp_imu_preintegrated = OrbToRos::ImuPreintegratedToRosPreintegrated(pKf->mpImuPreintegrated); //IMU::Preintegrated* mpImuPreintegrated;
+          //msgKf.m_backup_imu_preintegrated = OrbToRos::ImuPreintegratedToRosPreintegrated(pKf->mpImuPreintegrated);//IMU::Preintegrated mBackupImuPreintegrated;
         }
         //IMU::Calib mImuCalib;
 
@@ -574,7 +564,7 @@ namespace Converter {
 
 
         // Grid over the image to speed up feature matching
-        msgKf.m_grid = CppToRos::VectorToGrid3D(pKf->GetMGrid()); //std::vector< std::vector <std::vector<size_t> > > mGrid;
+        //msgKf.m_grid = CppToRos::VectorToGrid3D(pKf->GetMGrid()); //std::vector< std::vector <std::vector<size_t> > > mGrid;
 
         //std::map<KeyFrame*,int> mConnectedKeyFrameWeights;                    // Done in m_backup_connected_keyframe_id_weights
         
@@ -596,6 +586,7 @@ namespace Converter {
         msgKf.m_backup_connected_keyframe_id_weights = CppToRos::MapToRosIntTupleVector(pKf->GetBackupConnectedKeyFrameIdWeights()); //std::map<long unsigned int, int> mBackupConnectedKeyFrameIdWeights;
         
         // Spanning Tree and Loop Edges
+        msgKf.mb_first_connection = pKf->GetFirstConnection();
         //bool mb_first_connection //bool mbFirstConnection;
         //KeyFrame mp_parent //KeyFrame* mpParent;
         //KeyFrame[] msp_childrens //std::set<KeyFrame*> mspChildrens;

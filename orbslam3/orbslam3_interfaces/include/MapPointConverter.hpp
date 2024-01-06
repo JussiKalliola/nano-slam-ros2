@@ -100,7 +100,11 @@ namespace Converter {
         
         // Refernce KeyFrame
         //KeyFrame mp_ref_kf          // This one we have as m_backup_ref_kf_id
-        msgMp.m_backup_ref_kf_id = pMp->GetReferenceKeyFrame()->mnId;
+        if(pMp->GetReferenceKeyFrame() != nullptr) {
+          msgMp.m_backup_ref_kf_id = pMp->GetReferenceKeyFrame()->mnId;
+        } else {
+          msgMp.m_backup_ref_kf_id = -1; 
+        }
         
         // std::cout << "MapPoint Tracking counters" << std::endl;
         // Tracking counters
@@ -168,6 +172,7 @@ namespace Converter {
         if(mpOrbKeyFrames.find(rMp->mp_host_kf_id) != mpOrbKeyFrames.end()) {
           mpHostKF = mpOrbKeyFrames[rMp->mp_host_kf_id];
         } else if(rMp->mp_host_kf_id > -1) {
+          std::cout << "hostkf is unprocessed" << std::endl;
           *bUnprocessed = true;
         }
         
@@ -183,6 +188,7 @@ namespace Converter {
         if(mpOrbKeyFrames.find(rMp->m_backup_ref_kf_id) != mpOrbKeyFrames.end()) {
           mpRefKF = mpOrbKeyFrames[rMp->m_backup_ref_kf_id];
         } else if(rMp->m_backup_ref_kf_id > -1) {
+          std::cout << "refkf is unprocessed " << rMp->m_backup_ref_kf_id << std::endl;
           *bUnprocessed = true;
         }
 
@@ -195,6 +201,7 @@ namespace Converter {
         if(mpOrbMapPoints.find(rMp->m_backup_replaced_id) != mpOrbMapPoints.end()) {
           mpReplaced = mpOrbMapPoints[rMp->m_backup_replaced_id];
         } else if(rMp->m_backup_replaced_id > -1) {
+          std::cout << "replacedmp is unprocessed" << std::endl;
           *bUnprocessed = true;
         }
         
@@ -206,6 +213,7 @@ namespace Converter {
         if(mpOrbMaps.find(rMp->mp_map_id) != mpOrbMaps.end()) {
           mpMap = mpOrbMaps[rMp->mp_map_id];
         } else if(rMp->mp_map_id > -1) {
+          std::cout << "map is unprocessed" << std::endl;
           *bUnprocessed = true;
         }
 

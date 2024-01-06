@@ -170,7 +170,7 @@ int32[] mv_ordered_weights #std::vector<int> mvOrderedWeights;
 IntTuple[] m_backup_connected_keyframe_id_weights 
 
 # Spanning Tree and Loop Edges
-#bool mb_first_connection #bool mbFirstConnection;
+bool mb_first_connection #bool mbFirstConnection;
 #KeyFrame mp_parent #KeyFrame* mpParent;
 #KeyFrame[] msp_childrens #std::set<KeyFrame*> mspChildrens;
 #KeyFrame[] msp_loop_edges #std::set<KeyFrame*> mspLoopEdges;

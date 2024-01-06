@@ -4,6 +4,8 @@
 /doxygen
 /ros_ws
 
+.DS_Store
+
 !datasets/.gitkeep
 !results/.gitkeep
 !orbslam3/.gitkeep

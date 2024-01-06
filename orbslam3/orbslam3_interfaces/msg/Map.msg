@@ -1,4 +1,6 @@
 string system_id
+
+
 #KeyFrame[] mvp_keyframe_origins           # vector<KeyFrame*> mvpKeyFrameOrigins;
 uint64[] mv_backup_keyframe_origins_id    # vector<unsigned long int> mvBackupKeyFrameOriginsId;
 uint64 mp_first_region_kf_id               # KeyFrame* mpFirstRegionKF;
@@ -23,8 +25,8 @@ uint64[] ms_fixed_kfs                     # std::set<long unsigned int> msFixedK
 
 uint32 mn_id                              # long unsigned int mnId;
 
-#MapPoint[] msp_map_points                 # std::set<MapPoint*> mspMapPoints;
-#KeyFrame[] msp_keyframes                  # std::set<KeyFrame*> mspKeyFrames;
+MapPoint[] msp_map_points                 # std::set<MapPoint*> mspMapPoints;
+KeyFrame[] msp_keyframes                  # std::set<KeyFrame*> mspKeyFrames;
 
 # Save/load, the set structure is broken in libboost 1.58 for ubuntu 16.04, a vector is serializated
 uint64[] mvp_backup_map_points_ids          # std::vector<MapPoint*> mvpBackupMapPoints;
@@ -33,8 +35,8 @@ uint64[] mvp_backup_keyframes_ids           # std::vector<KeyFrame*> mvpBackupKe
 #KeyFrame mp_kf_initial                    # KeyFrame* mpKFinitial;
 #KeyFrame mp_kf_lower_id                   # KeyFrame* mpKFlowerID;
 
-uint64 mn_backup_kf_initial_id            # unsigned long int mnBackupKFinitialID;
-uint64 mn_backup_kf_lower_id              # unsigned long int mnBackupKFlowerID;
+int64 mn_backup_kf_initial_id            # unsigned long int mnBackupKFinitialID;
+int64 mn_backup_kf_lower_id              # unsigned long int mnBackupKFlowerID;
 
 uint64[] mvp_reference_map_points_id       # std::vector<MapPoint*> mvpReferenceMapPoints;
 
