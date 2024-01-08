@@ -25,6 +25,9 @@ namespace Converter {
 
     public:
       static map OrbMapToRosMap(orb_map* opM) {
+        std::mutex mMutexNewMP;
+        std::lock_guard<std::mutex> lock(mMutexNewMP);
+        
         map rM;
         //KeyFrame[] mvp_keyframe_origins           // vector<KeyFrame*> mvpKeyFrameOrigins;
         rM.mv_backup_keyframe_origins_id = opM->mvBackupKeyFrameOriginsId;    // vector<unsigned long int> mvBackupKeyFrameOriginsId;

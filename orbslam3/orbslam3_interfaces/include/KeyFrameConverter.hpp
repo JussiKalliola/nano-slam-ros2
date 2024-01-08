@@ -61,7 +61,7 @@ namespace Converter {
     public: 
       
       
-      static orb_keyframe* ROSKeyFrameToORBSLAM3(keyframe::SharedPtr rKf, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames, std::map<long unsigned int, orb_map*> mpOrbMaps, bool* bUnprocessed) {
+      static orb_keyframe* ROSKeyFrameToORBSLAM3(keyframe::SharedPtr rKf, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames, orb_map* mpMap, bool* bUnprocessed) {
                 
         std::mutex mMutexNewKF;
         std::lock_guard<std::mutex> lock(mMutexNewKF);
@@ -314,13 +314,6 @@ namespace Converter {
         bool mbBad = rKf->mb_bad;    
 
         float mHalfBaseline = 0.0;//float mHalfBaseline = rKf->; // Only for visualization
-
-        orb_map* mpMap = nullptr;//Map* mpMap = rKf->;
-        if (mpOrbMaps.count(rKf->mp_map_id) > 0) {
-          mpMap = mpOrbMaps[rKf->mp_map_id]; 
-        } else if(rKf->mp_map_id > -1) {
-          *bUnprocessed = true;
-        }
 
         // Backup variables for inertial
         long long int mBackupPrevKFId = rKf->m_backup_prev_kf_id;
