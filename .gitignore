@@ -4,12 +4,15 @@
 /doxygen
 /ros_ws
 
+/orbslam3/orbslam3_ros2/src/ActionComments.cpp
+
 .DS_Store
 
 !datasets/.gitkeep
 !results/.gitkeep
 !orbslam3/.gitkeep
 !orbslam3/orbslam3_interfaces
+
 
 devel/
 logs/

@@ -136,6 +136,9 @@ namespace Converter {
 
       static orb_map_point* RosMapPointToOrb(map_point::SharedPtr rMp, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames, std::map<long unsigned int, orb_map*> mpOrbMaps, std::map<long unsigned int, orb_map_point*> mpOrbMapPoints, bool* bUnprocessed) {
         
+        std::mutex mMutexNewMP;
+        std::lock_guard<std::mutex> lock(mMutexNewMP);
+        
         long unsigned int mnId = rMp->mn_id;
         long int mnFirstKFid = rMp->mn_first_kf_id;
         long int mnFirstFrame = rMp->mn_first_frame;
@@ -264,6 +267,9 @@ namespace Converter {
           *bUnprocessed = true;
         }
       }
+
+    private:
+
   };
 
 };

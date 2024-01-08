@@ -48,6 +48,7 @@
 #include "MapPointConverter.hpp"
 #include "Converter.hpp"
 
+
 namespace Converter {
   class KeyFrameConverter {
     using keyframe = orbslam3_interfaces::msg::KeyFrame; 
@@ -58,9 +59,12 @@ namespace Converter {
     using orb_map = ORB_SLAM3::Map;
 
     public: 
-
+      
+      
       static orb_keyframe* ROSKeyFrameToORBSLAM3(keyframe::SharedPtr rKf, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames, std::map<long unsigned int, orb_map*> mpOrbMaps, bool* bUnprocessed) {
-        
+                
+        std::mutex mMutexNewKF;
+        std::lock_guard<std::mutex> lock(mMutexNewKF);
         bool bImu = rKf->b_imu;
         
         long unsigned int nNextId = rKf->n_next_id;
