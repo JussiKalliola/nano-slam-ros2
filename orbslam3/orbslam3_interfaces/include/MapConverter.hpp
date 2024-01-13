@@ -25,8 +25,8 @@ namespace Converter {
 
     public:
       static map OrbMapToRosMap(orb_map* opM) {
-        std::mutex mMutexNewMP;
-        std::lock_guard<std::mutex> lock(mMutexNewMP);
+        //std::mutex mMutexNewMP;
+        //std::lock_guard<std::mutex> lock(mMutexNewMP);
         
         map rM;
         //KeyFrame[] mvp_keyframe_origins           // vector<KeyFrame*> mvpKeyFrameOrigins;
@@ -105,95 +105,38 @@ namespace Converter {
         return rM;
       }
       
-      static orb_map* RosMapToOrbMap(map::SharedPtr rM, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames, std::map<long unsigned int, orb_map_point*> mpOrbMapPoints, std::map<long unsigned int, orb_map*> mpOrbMaps, bool* bUnprocessed) {        
-      orb_map* opM = new orb_map();
-      std::cout << std::endl; 
-      if(mpOrbMaps.find(rM->mn_id) != mpOrbMaps.end())
-      {
-        orb_map* pM = mpOrbMaps[rM->mn_id];
-
-        std::set<orb_map_point*> mspMapPoints;
-        for(map_point mp : rM->msp_map_points)
-        {
-          if(mpOrbMapPoints.find(mp.mn_id) != mpOrbMapPoints.end())
-          {
-            mspMapPoints.insert(mpOrbMapPoints[mp.mn_id]);
-          } else {
-            std::cout << "MapPoint not found " << mp.mn_id << std::endl;
-          }
-          //bool bUnprocessed = false;
-          //mspMapPoints.insert(Converter::MapPointConverter::RosMapPointToOrb(mp, mpOrbKeyFrames, mpOrbMapPoints, mpOrbMaps, &bUnprocessed));
-        }
-        std::cout << "Number of map points in update " << mspMapPoints.size() << ", #msg " << rM->msp_map_points.size() << ", total=" << mpOrbMapPoints.size() << std::endl; 
-        pM->UpdateMapPoints(mspMapPoints);
-
-        std::set<orb_keyframe*> mspKeyFrames;
-
-        for(keyframe kf : rM->msp_keyframes)
-        {
-          if(mpOrbKeyFrames.find(kf.mn_id) != mpOrbKeyFrames.end())
-          {
-            mspKeyFrames.insert(mpOrbKeyFrames[kf.mn_id]);
-          } else {
-            std::cout << "KeyFrame not found " << kf.mn_id << std::endl;
-          }
-          //bool bUnprocessed = false;
-          //mspKeyFrames.insert(Converter::KeyFrameConverter::ROSKeyFrameToORBSLAM3(kf, mpOrbKeyFrames, mpOrbMapPoints, mpOrbMaps, &bUnprocessed));
-        }
-
-        std::cout << "Number of keyframes in update " << mspKeyFrames.size() << std::endl; 
-        pM->UpdateKeyFrames(mspKeyFrames);
-
-
-        orb_keyframe* mpKFinitial = nullptr;
-        if(rM->mn_backup_kf_initial_id != -1 && mpOrbKeyFrames.find(rM->mn_backup_kf_initial_id) != mpOrbKeyFrames.end())
-        {
-          mpKFinitial = mpOrbKeyFrames[rM->mn_backup_kf_initial_id];
-        } else {
-          std::cout << "KeyFrame initial not found " << rM->mn_backup_kf_initial_id << std::endl;
-        }
-      
-        pM->UpdateInitialKF(mpKFinitial);
+      static orb_map* RosMapToOrbMap(map::SharedPtr rM) {        
         
 
+        bool mbFail = rM->mb_fail;
+        std::vector<unsigned long int> mvOptKFs = rM->ms_opt_kfs;
+        std::set<unsigned long int> msOptKFs(mvOptKFs.begin(), mvOptKFs.end());
+        std::vector<unsigned long int> mvFixedKFs = rM->ms_fixed_kfs;
+        std::set<unsigned long int> msFixedKFs(mvFixedKFs.begin(), mvFixedKFs.end());
+        long unsigned int mnId = rM->mn_id;
+        std::vector<unsigned long int> mvpBackupMapPointsId = rM->mvp_backup_map_points_ids;
+        std::vector<unsigned long int> mvpBackupKeyFramesId = rM->mvp_backup_keyframes_ids;
+        unsigned long int mnBackupKFinitialID = rM->mn_backup_kf_initial_id;
+        unsigned long int mnBackupKFlowerID = rM->mn_backup_kf_lower_id;
+        std::vector<unsigned long int> mvpBackupReferenceMapPointsId = rM->mvp_reference_map_points_id;
+        bool mbImuInitialized = rM->mb_imu_initialized;
+        int mnMapChange = rM->mn_map_change;
+        int mnMapChangeNotified = rM->mn_map_change_notified;
+        long unsigned int mnInitKFid = rM->mn_init_kf_id;
+        long unsigned int mnMaxKFid = rM->mn_max_kf_id;
+        int mnBigChangeIdx = rM->mn_big_change_idx;
+        bool mIsInUse = rM->m_is_in_use;
+        bool mHasTumbnail = rM->m_has_thumbnail;
+        bool mbBad = rM->m_bad;
+        bool mbIsInertial = rM->mb_is_inertial;
+        bool mbIMU_BA1 = rM->mb_imu_ba1;
+        bool mbIMU_BA2 = rM->mb_imu_ba2;
 
-        orb_keyframe* mpKFlowerID = nullptr;
-        if(rM->mn_backup_kf_lower_id != -1 && mpOrbKeyFrames.find(rM->mn_backup_kf_lower_id) != mpOrbKeyFrames.end())
-        {
-          mpKFlowerID = mpOrbKeyFrames[rM->mn_backup_kf_lower_id];
-        } else {
-          std::cout << "KeyFrame lower not found " << rM->mn_backup_kf_lower_id << std::endl;
-        }
+        orb_map* pM = new orb_map(mbFail, msOptKFs, msFixedKFs, mnId, mvpBackupMapPointsId, mvpBackupKeyFramesId, mnBackupKFinitialID, mnBackupKFlowerID, mvpBackupReferenceMapPointsId, mbImuInitialized, mnMapChange, mnMapChangeNotified, mnInitKFid, mnMaxKFid, mnBigChangeIdx, mIsInUse, mHasTumbnail, mbBad, mbIsInertial, mbIMU_BA1, mbIMU_BA2);
 
+        //std::cout << "Map." << pM->GetId() << " After update - #MP=" << pM->GetAllMapPoints().size() <<", #KF=" << pM->GetAllKeyFrames().size() << ", #RefMPs" << pM->GetReferenceMapPoints().size() << ", initKF=" << pM->GetInitKFid() << ", MaxKF=" << pM->GetMaxKFid() << ", OriginKFid" << pM->GetOriginKF()->mnId << std::endl;
 
-        pM->UpdateLowerKF(mpKFlowerID);
-
-
-        std::vector<orb_map_point*> mvpReferenceMapPoints;
-        for(unsigned long int id : rM->mvp_reference_map_points_id)
-        {
-          if(mpOrbMapPoints.find(id) != mpOrbMapPoints.end())
-          {
-            mvpReferenceMapPoints.push_back(mpOrbMapPoints[id]);
-          } else {
-            std::cout << "MapPoint ref not found " << id << std::endl;
-          }
-          //bool bUnprocessed = false;
-          //mspMapPoints.insert(Converter::MapPointConverter::RosMapPointToOrb(mp, mpOrbKeyFrames, mpOrbMapPoints, mpOrbMaps, &bUnprocessed));
-        }
-
-
-        std::cout << "Number of ref map points in update " << mvpReferenceMapPoints.size() << ", #msg " << rM->mvp_reference_map_points_id.size() << ", total=" << mpOrbMapPoints.size() << std::endl; 
-        pM->UpdateReferenceMapPoints(mvpReferenceMapPoints);
-        
-
-        std::cout << "Map." << pM->GetId() << " After update - #MP=" << pM->GetAllMapPoints().size() <<", #KF=" << pM->GetAllKeyFrames().size() << ", #RefMPs" << pM->GetReferenceMapPoints().size() << ", initKF=" << pM->GetInitKFid() << ", MaxKF=" << pM->GetMaxKFid() << ", OriginKFid" << pM->GetOriginKF()->mnId << std::endl;
-      }
-
-
-
-      std::cout << std::endl; 
-      return opM;
+        return pM;
 
     } 
 
