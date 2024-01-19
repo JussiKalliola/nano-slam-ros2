@@ -7,6 +7,7 @@
 /orbslam3/orbslam3_ros2/src/ActionComments.cpp
 
 .DS_Store
+.vscode
 
 !datasets/.gitkeep
 !results/.gitkeep
