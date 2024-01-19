@@ -21,17 +21,23 @@ namespace Converter {
 
     public:
       static map_point ORBSLAM3MapPointToROS(orb_map_point* pMp, long unsigned int hostKfId=-1) {
+        std::mutex mMutex;
+        std::lock_guard<std::mutex> lock(mMutex);
+        
         map_point msgMp = FormDefaultMapPointMessage();
         
         // public
-        // std::cout << "MapPoint public" << std::endl;
+        //std::cout << "MapPoint public" << std::endl;
         msgMp.mn_id = pMp->mnId;
+        msgMp.tr_mn_id = pMp->trMnId;
+        msgMp.lm_mn_id = pMp->lmMnId;
+
         msgMp.n_next_id = pMp->nNextId;
         msgMp.mn_first_kf_id = pMp->mnFirstKFid;
         msgMp.mn_first_frame = pMp->mnFirstFrame;
         msgMp.n_obs = pMp-> nObs;
         
-        // std::cout << "MapPoint vars used by the trackin" << std::endl;
+        //std::cout << "MapPoint vars used by the trackin" << std::endl;
         // Variables used by the tracking
         msgMp.m_track_proj_x = pMp->mTrackProjX;
         msgMp.m_track_proj_y = pMp->mTrackProjY;
@@ -48,12 +54,12 @@ namespace Converter {
         msgMp.mn_track_reference_for_frame = pMp->mnTrackReferenceForFrame;
         msgMp.mn_last_frame_seen = pMp->mnLastFrameSeen;
         
-        // std::cout << "MapPoint vars used by local mapping" << std::endl;
+        //std::cout << "MapPoint vars used by local mapping" << std::endl;
         // Variables used by local mapping
         msgMp.mn_ba_local_for_kf = pMp->mnBALocalForKF;
         msgMp.mn_fuse_candidate_for_kf = pMp->mnFuseCandidateForKF;
         
-        // std::cout << "MapPoint vars used by loop closing" << std::endl;
+        //std::cout << "MapPoint vars used by loop closing" << std::endl;
         // Variables used by loop closing
         msgMp.mn_loop_point_for_kf = pMp->mnLoopPointForKF;
         msgMp.mn_corrected_by_kf = pMp->mnCorrectedByKF;
@@ -62,7 +68,7 @@ namespace Converter {
         msgMp.mn_ba_global_for_kf = pMp->mnBAGlobalForKF;
         msgMp.mn_ba_local_for_merge = pMp->mnBALocalForMerge;
         
-        // std::cout << "MapPoint vars used by merging" << std::endl;
+        //std::cout << "MapPoint vars used by merging" << std::endl;
         // Variables used by merging
         msgMp.m_pos_merge = CppToRos::EigenVector3fToVector3(pMp->mPosMerge);
         msgMp.m_normal_vector_merge = CppToRos::EigenVector3fToVector3(pMp->mNormalVectorMerge);
@@ -72,9 +78,9 @@ namespace Converter {
         msgMp.m_init_u = pMp->mInitU;
         msgMp.m_init_v = pMp->mInitV;
         //KeyFrame mp_host_kf           // This one we have as mp_host_kf_id
-        
-        msgMp.mp_host_kf_id = (pMp->mpHostKF != nullptr) ? pMp->mpHostKF->mnId : -1;
-        // std::cout << "MapPoint origin id" << std::endl;
+        orb_keyframe* mpHostKF = pMp->mpHostKF; 
+        msgMp.mp_host_kf_id = (mpHostKF) ? mpHostKF->mnId : -1; // static_cast<long long int>(pMp->mBackupHostKFId); //(pMp->mpHostKF != nullptr) ? pMp->mpHostKF->mnId : -1;
+        //std::cout << "MapPoint origin id" << std::endl;
         msgMp.mn_origin_map_id = pMp->mnOriginMapId;
         
         // std::cout << "MapPoint protected" << std::endl;
@@ -100,13 +106,10 @@ namespace Converter {
         
         // Refernce KeyFrame
         //KeyFrame mp_ref_kf          // This one we have as m_backup_ref_kf_id
-        if(pMp->GetReferenceKeyFrame() != nullptr) {
-          msgMp.m_backup_ref_kf_id = pMp->GetReferenceKeyFrame()->mnId;
-        } else {
-          msgMp.m_backup_ref_kf_id = -1; 
-        }
+        orb_keyframe* mpRefKF = pMp->GetReferenceKeyFrame();
+        msgMp.m_backup_ref_kf_id = (mpRefKF) ? mpRefKF->mnId : -1; //static_cast<long long int>(pMp->GetRefBackup()); //pMp->GetReferenceKeyFrame()->mnId;
         
-        // std::cout << "MapPoint Tracking counters" << std::endl;
+        //std::cout << "MapPoint Tracking counters" << std::endl;
         // Tracking counters
         msgMp.mn_visible = pMp->GetVisible();
         msgMp.mn_found = pMp->GetFound();
@@ -116,21 +119,30 @@ namespace Converter {
         // Bad flag (we do not currently erase MapPoint from memory)
         msgMp.mb_bad = pMp->isBad();
         //MapPoint mp_replaced        // This one we have as m_bakup_replaced_id
-        // std::cout << "MapPoint Get Replaced?" << std::endl;
+        //std::cout << "MapPoint Get Replaced?" << std::endl;
         // For save relation without pointer, this is necessary for save/load function
-        orb_map_point* pKfr = pMp->GetReplaced();
-        msgMp.m_backup_replaced_id = (pKfr != nullptr) ? pKfr->mnId : -1; 
+        //std::cout << "check if replaced" << std::endl;
+        orb_map_point* mpReplaced = pMp->GetReplaced();
+        msgMp.m_backup_replaced_id = (mpReplaced) ? mpReplaced->mnId : -1; //static_cast<long long int>(pMp->GetReplacedBackup()); //(pKfr != nullptr) ? pKfr->mnId : -1; 
         
 
+        //std::cout << "MapPoint distance invariance" << std::endl;
         // Scale invariance distances
         msgMp.mf_min_distance = pMp->GetMinDistanceInvariance();
         msgMp.mf_max_distance = pMp->GetMaxDistanceInvariance();
         
-        // std::cout << "MapPoint end" << std::endl;
+        //std::cout << "MapPoint end" << std::endl;
         //Map mp_map                  // This one we have as mp_map_id 
         orb_map* pM = pMp->GetMap();
         msgMp.mp_map_id = (pM != nullptr) ? pM->GetId() : -1; 
 
+        //std::cout << "==========ORB>ROS=========== HOST KF ID=" << msgMp.mp_host_kf_id;
+        //if(mpHostKF) std::cout << "," << mpHostKF->mnId;
+        //std::cout << ", REF ID=" << msgMp.m_backup_ref_kf_id; 
+        //if(mpRefKF) std::cout << "," << mpRefKF->mnId;
+        //std::cout << ", REPLACED ID=" << msgMp.m_backup_replaced_id;
+        //if(mpReplaced) std::cout << "," << mpReplaced->mnId;
+        //std::cout << " =============================" << std::endl;
         return msgMp;
       } 
 
@@ -140,6 +152,10 @@ namespace Converter {
         std::lock_guard<std::mutex> lock(mMutexNewMP);
         
         long unsigned int mnId = rMp->mn_id;
+        
+        long int trMnId = rMp->tr_mn_id;
+        long int lmMnId = rMp->lm_mn_id;
+
         long int mnFirstKFid = rMp->mn_first_kf_id;
         long int mnFirstFrame = rMp->mn_first_frame;
         int nObs = rMp->n_obs;
@@ -178,7 +194,7 @@ namespace Converter {
         //  std::cout << "hostkf is unprocessed" << std::endl;
         //  *bUnprocessed = true;
         //}
-        long int mBackupHostKFId = rMp->mp_host_kf_id;
+        long long int mBackupHostKFId = static_cast<long long int>(rMp->mp_host_kf_id);
         
         unsigned int mnOriginMapId = rMp->mn_origin_map_id;
         Eigen::Vector3f mWorldPos = RosToCpp::Vector3ToEigenVector3f(rMp->m_world_pos);
@@ -199,7 +215,7 @@ namespace Converter {
         //  *bUnprocessed = true;
         //}
 
-        long unsigned int mBackupRefKFId = rMp->m_backup_ref_kf_id;
+        long long int mBackupRefKFId = static_cast<long long int>(rMp->m_backup_ref_kf_id);
         int mnVisible = rMp->mn_visible;
         int mnFound = rMp->mn_found;
         bool mbBad = rMp->mb_bad;
@@ -212,7 +228,7 @@ namespace Converter {
         //  *bUnprocessed = true;
         //}
         
-        long long int mBackupReplacedId = rMp->m_backup_replaced_id;
+        long long int mBackupReplacedId = static_cast<long long int>(rMp->m_backup_replaced_id);
         float mfMinDistance = rMp->mf_min_distance;
         float mfMaxDistance = rMp->mf_max_distance;
         
@@ -223,9 +239,10 @@ namespace Converter {
         //  std::cout << "map is unprocessed" << std::endl;
         //  *bUnprocessed = true;
         //}
+        
+        //std::cout << "===================== HOST KF ID=" << mBackupHostKFId << ", REF ID=" << mBackupRefKFId << ", REPLACED ID=" << mBackupReplacedId << " =============================" << std::endl;
 
-
-        return new orb_map_point(mnId, mnFirstKFid, mnFirstFrame, nObs, mTrackProjX, mTrackProjY, mTrackDepth, mTrackDepthR, mTrackProjXR, mTrackProjYR, mbTrackInView, mbTrackInViewR, mnTrackScaleLevel, mnTrackScaleLevelR, mTrackViewCos, mTrackViewCosR, mnTrackReferenceForFrame, mnLastFrameSeen, mnBALocalForKF, mnFuseCandidateForKF, mnLoopPointForKF, mnCorrectedByKF, mnCorrectedReference, mPosGBA, mnBAGlobalForKF, mnBALocalForMerge, mPosMerge, mNormalVectorMerge, mInvDepth, mInitU, mInitV, /*mpHostKF,*/ mBackupHostKFId, mnOriginMapId, mWorldPos, /*mObservations,*/ mBackupObservationsId1, mBackupObservationsId2, mNormalVector, mDescriptor, /*mpRefKF,*/ mBackupRefKFId, mnVisible, mnFound, mbBad, /*mpReplaced,*/ mBackupReplacedId, mfMinDistance, mfMaxDistance /*mpMap*/);
+        return new orb_map_point(mnId, trMnId, lmMnId, mnFirstKFid, mnFirstFrame, nObs, mTrackProjX, mTrackProjY, mTrackDepth, mTrackDepthR, mTrackProjXR, mTrackProjYR, mbTrackInView, mbTrackInViewR, mnTrackScaleLevel, mnTrackScaleLevelR, mTrackViewCos, mTrackViewCosR, mnTrackReferenceForFrame, mnLastFrameSeen, mnBALocalForKF, mnFuseCandidateForKF, mnLoopPointForKF, mnCorrectedByKF, mnCorrectedReference, mPosGBA, mnBAGlobalForKF, mnBALocalForMerge, mPosMerge, mNormalVectorMerge, mInvDepth, mInitU, mInitV, /*mpHostKF,*/ mBackupHostKFId, mnOriginMapId, mWorldPos, /*mObservations,*/ mBackupObservationsId1, mBackupObservationsId2, mNormalVector, mDescriptor, /*mpRefKF,*/ mBackupRefKFId, mnVisible, mnFound, mbBad, /*mpReplaced,*/ mBackupReplacedId, mfMinDistance, mfMaxDistance /*mpMap*/);
       }
 
       static map_point FormDefaultMapPointMessage()

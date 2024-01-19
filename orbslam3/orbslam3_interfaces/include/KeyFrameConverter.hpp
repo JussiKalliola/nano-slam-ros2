@@ -246,7 +246,7 @@ namespace Converter {
         //ORB_SLAM3::ORBVocabulary* mpORBvocabulary = nullptr; //ORBVocabulary* mpORBvocabulary = rKf->;
 
         // Grid over the image to speed up feature matching
-        std::vector< std::vector <std::vector<size_t> > > mGrid = std::vector< std::vector <std::vector<size_t> > >();// std::vector< std::vector <std::vector<size_t> > > mGrid = rKf->;
+        std::vector< std::vector <std::vector<size_t> > > mGrid = Converter::RosToCpp::Grid3DToVector(rKf->m_grid);// std::vector< std::vector <std::vector<size_t> > > mGrid = rKf->;
 
         //std::map<orb_keyframe*,int> mConnectedKeyFrameWeights = std::map<orb_keyframe*,int>();  //std::map<KeyFrame*,int> mConnectedKeyFrameWeights = rKf->;
         
@@ -367,7 +367,10 @@ namespace Converter {
 
 
       static keyframe ORBSLAM3KeyFrameToROS(orb_keyframe* pKf) {
+        std::mutex mMutex;
+        std::lock_guard<std::mutex> lock(mMutex);
         keyframe msgKf = FormDefaultKeyFrameMessage();
+        //std::cout << "start of kf conversion" << std::endl;
         // Public 1
         msgKf.b_imu = pKf->bImu;
 
@@ -422,6 +425,7 @@ namespace Converter {
         
         msgKf.mn_ba_global_for_kf = pKf->mnBAGlobalForKF;
 
+        //std::cout << "line 426" << std::endl;
         // Variables used by merging
         msgKf.m_tcw_merge = CppToRos::SophusSE3fToPose(pKf->mTcwMerge); //Sophus::SE3f mTcwMerge;
         msgKf.m_tcw_bef_merge = CppToRos::SophusSE3fToPose(pKf->mTcwBefMerge);// Sophus::SE3f mTcwBefMerge;
@@ -454,6 +458,7 @@ namespace Converter {
         // Number of KeyPoints
         msgKf.n = pKf->N; //const
 
+        //std::cout << "line 459" << std::endl;
         // KeyPoints, stereo coordinate and descriptors (all associated by an index)
         msgKf.mv_keys = CppToRos::CVKeypointVectorToPose2DVector(pKf->mvKeys); //const std::vector<cv::KeyPoint> mvKeys;
         msgKf.mv_keys_un = CppToRos::CVKeypointVectorToPose2DVector(pKf->mvKeysUn); //const std::vector<cv::KeyPoint> mvKeysUn;
@@ -499,6 +504,7 @@ namespace Converter {
         msgKf.mn_dataset = pKf->mnDataset;
         
         
+        //std::cout << "line 505" << std::endl;
         //KeyFrame[] mvp_loop_cand_kfs #std::vector <KeyFrame*> mvpLoopCandKFs;
         //KeyFrame[] mvp_merge_cand_kfs #std::vector <KeyFrame*> mvpMergeCandKFs;
         std::vector<orb_keyframe*> mvpLoopCandKFs=pKf->mvpLoopCandKFs;
@@ -541,13 +547,16 @@ namespace Converter {
         // Imu bias 
         msgKf.m_imu_bias = OrbToRos::ImuBiasToRosBias(pKf->GetImuBias()); //IMU::Bias mImuBias;
 
+        //std::cout << "line 548" << std::endl;
         // MapPoints associated to keypoints
         std::vector<map_point> msgMps;
         for (const auto& mp : pKf->GetMapPoints()) {
-          msgMps.push_back(MapPointConverter::ORBSLAM3MapPointToROS(mp, pKf->mnId));
+          if(mp)
+            msgMps.push_back(MapPointConverter::ORBSLAM3MapPointToROS(mp, pKf->mnId));
         }
         
 
+        //std::cout << "line 555" << std::endl;
         msgKf.mvp_map_points = msgMps; //std::vector<MapPoint*> mvpMapPoints;
         // For save relation without pointer, this is necessary for save/load function
         std::vector<long int> mvpMapPointBackup = std::vector<long int>();
@@ -569,7 +578,7 @@ namespace Converter {
 
 
         // Grid over the image to speed up feature matching
-        //msgKf.m_grid = CppToRos::VectorToGrid3D(pKf->GetMGrid()); //std::vector< std::vector <std::vector<size_t> > > mGrid;
+        msgKf.m_grid = CppToRos::VectorToGrid3D(pKf->GetMGrid()); //std::vector< std::vector <std::vector<size_t> > > mGrid;
 
         //std::map<KeyFrame*,int> mConnectedKeyFrameWeights;                    // Done in m_backup_connected_keyframe_id_weights
         
@@ -599,6 +608,7 @@ namespace Converter {
         //KeyFrame[] msp_merge_edges //std::set<KeyFrame*> mspMergeEdges;
         
 
+        //std::cout << "line 607" << std::endl;
         // For save relation without pointer, this is necessary for save/load function
         orb_keyframe* pKfP = pKf->GetParent();
         msgKf.m_backup_parent_id = (pKfP != nullptr) ? pKfP->mnId : -1;
@@ -629,7 +639,8 @@ namespace Converter {
           mspMergeEdgesId.push_back(m->mnId);
         }
         msgKf.mv_backup_merge_edges_id = mspMergeEdgesId; //std::vector<long unsigned int> mvBackupMergeEdgesId;
-
+        
+        //std::cout << "line 639" << std::endl;
 
         // Bad flags
         msgKf.mb_not_erase = pKf->GetNotErase(); //bool mbNotErase;
@@ -641,15 +652,20 @@ namespace Converter {
         // Map mp_map //Map* mpMap;
         orb_map* pM = pKf->GetMap();
         msgKf.mp_map_id = (pM != nullptr) ? pM->GetId() : -1; 
+        //std::cout << "line 651" << std::endl;
         
         // Backup variables for inertial
         orb_keyframe* pKfPrev = pKf->mPrevKF;
         orb_keyframe* pKfNext = pKf->mNextKF;
 
+        //std::cout << "line 657" << std::endl;
         msgKf.m_backup_prev_kf_id = (pKfPrev != nullptr) ? pKfPrev->mnId : -1;
+        //std::cout << "line 659" << std::endl;
+        //if(!pKfNext || pKfNext == nullptr) std::cout << "pKfNext is nullptr" << std::endl;
         msgKf.m_backup_next_kf_id = (pKfNext != nullptr) ? pKfNext->mnId : -1;
 
 
+        //std::cout << "line 659" << std::endl;
         // Backup for Cameras
         ORB_SLAM3::GeometricCamera* mpCamera = pKf->mpCamera;
         ORB_SLAM3::GeometricCamera* mpCamera2 = pKf->mpCamera2;
@@ -678,6 +694,7 @@ namespace Converter {
         // Figure how to take nulls into consideration with grids. Not needed for monocular.
         //msgKf.m_grid_right = toGrid3D(pKf->mGridRight); //std::vector< std::vector <std::vector<size_t> > > mGridRight;
 
+        //std::cout << "end of conversion" << std::endl;
         return msgKf;
 
       }
@@ -690,7 +707,6 @@ namespace Converter {
         msgKf.m_backup_next_kf_id = -1; 
         msgKf.m_backup_parent_id = -1;       
         msgKf.mp_map_id = -1;
-
         return msgKf;
 
       }

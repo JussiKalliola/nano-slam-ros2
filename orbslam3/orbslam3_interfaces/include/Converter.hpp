@@ -258,21 +258,30 @@ namespace Converter {
     public:
 
       static std::vector<std::vector<std::vector<size_t>>> Grid3DToVector(grid_3d rG) {
-        std::vector<std::vector<std::vector<size_t>>> cppG;
         
+        unsigned int width = rG.width;
+        unsigned int height = rG.height;
+        unsigned int depth = rG.depth;
+      
+        std::vector<size_t> data = rG.data;
         
-        //msgG.width = g.size();
-        //msgG.height = g[0].size();
-        //msgG.depth = g[0][0].size();
 
-        //for (const auto& vec1 : g) {
-        //    for (const auto& vec2 : vec1) {
-        //        for (const auto& val : vec2) {
-        //            msgG.data.push_back(val);
-        //        }
-        //    }
-        //}
-        return cppG;
+        // Initialize the 3D matrix with zeros
+        std::vector<std::vector<std::vector<size_t>>> mGrid(
+            width, std::vector<std::vector<size_t>>(
+                       height, std::vector<size_t>(depth, 0)));
+
+        // Iterate through the flattened array and fill the matrix
+        size_t index = 0;
+        for (size_t z = 0; z < depth; ++z) {
+            for (size_t y = 0; y < height; ++y) {
+                for (size_t x = 0; x < width; ++x) {
+                    mGrid[x][y][z] = data[index++];
+                }
+            }
+        }
+        
+        return mGrid;
       }
     
       static Sophus::SE3f PoseToSophusSE3f(geometry_pose rP) {

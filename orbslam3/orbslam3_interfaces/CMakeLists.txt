@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 project(orbslam3_interfaces)
 
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE Debug)
+ENDIF()
+
+MESSAGE("${PROJECT_NAME}: Build type: " ${CMAKE_BUILD_TYPE})
+
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
   set(CMAKE_C_STANDARD 99)

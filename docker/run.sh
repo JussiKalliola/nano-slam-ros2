@@ -128,10 +128,11 @@ else
               -v /run/user/1000:/run/user/1000 \
               -v $ROOT_DIR/datasets/:/root/datasets \
               -v $ROOT_DIR/results/:/root/results \
-              -v $ROOT_DIR/ros_ws/:/root/colcon_ws \
               -v $ROOT_DIR/orbslam3/:/root/colcon_ws/src \
               -v $ROOT_DIR/thirdparty/ORB_SLAM3:/root/ORB_SLAM3-dev \
               --device=/dev/bus/usb:/dev/bus/usb \
               $REGISTRY/$IMAGE:$VERSION \
               bash
 fi
+
+# -v $ROOT_DIR/ros_ws/:/root/colcon_ws \

@@ -3,7 +3,12 @@ string system_id
 # public
 
 uint64 mn_id
+
+int64 tr_mn_id
+int64 lm_mn_id
+
 uint64 n_next_id
+
 int64 mn_first_kf_id
 int64 mn_first_frame
 int32 n_obs

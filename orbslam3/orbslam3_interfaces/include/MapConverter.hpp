@@ -50,21 +50,25 @@ namespace Converter {
         rM.mn_id = opM->GetId();                              // long unsigned int mnId;
         
 
-        std::cout << " #################### num of map points "<< opM->GetAllMapPoints().size() << std::endl;
+        //std::cout << " #################### num of map points "<< opM->GetAllMapPoints().size() << std::endl;
         for(ORB_SLAM3::MapPoint* mp : opM->GetAllMapPoints())
         {
           rM.msp_map_points.push_back(Converter::MapPointConverter::ORBSLAM3MapPointToROS(mp));
         }
-
+        
+        //std::cout << "before all keyframes" << std::endl;
         if(opM->GetAllKeyFrames().size() > 0) {
           for(ORB_SLAM3::KeyFrame* kf : opM->GetAllKeyFrames())
           {
+            //if(kf == nullptr) std::cout << "kf is null" << std::endl;
+            //std::cout << "processing kf=" << kf->mnId << std::endl;
             rM.msp_keyframes.push_back(Converter::KeyFrameConverter::ORBSLAM3KeyFrameToROS(kf));
           }
         }
         //MapPoint[] msp_map_points                 // std::set<MapPoint*> mspMapPoints;
         //KeyFrame[] msp_keyframes                  // std::set<KeyFrame*> mspKeyFrames;
 
+        //std::cout << "before backups" << std::endl;
         // Save/load, the set structure is broken in libboost 1.58 for ubuntu 16.04, a vector is serializated
         rM.mvp_backup_map_points_ids = opM->GetBackupMapPointsId();          // std::vector<MapPoint*> mvpBackupMapPoints;
         rM.mvp_backup_keyframes_ids = opM->GetBackupKeyFrames();           // std::vector<KeyFrame*> mvpBackupKeyFrames;
@@ -90,6 +94,7 @@ namespace Converter {
 
 
 
+        //std::cout << "before bools" << std::endl;
         rM.m_is_in_use = opM->IsInUse();                         // bool mIsInUse;
         rM.m_has_thumbnail = opM->HasThumbnail();                      // bool mHasTumbnail;
         rM.m_bad = opM->GetIsBad();                                // bool mbBad = false;

@@ -191,6 +191,7 @@ bool mb_bad #bool mbBad;
 
 #Map mp_map #Map* mpMap;
 uint64 mp_map_id
+bool b_new_map_created
 
 # Backup variables for inertial
 int64 m_backup_prev_kf_id #long long int mBackupPrevKFId;
