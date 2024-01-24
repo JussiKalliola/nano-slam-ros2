@@ -2,7 +2,7 @@
 
 
 REGISTRY=jussikalliola
-IMAGE=nano-ros2-orbslam3
+IMAGE=nano-ros2-orbslam3-main
 VERSION=latest
 USE_CACHE=1
 SYSTEM_ARCH=$(uname -m)
@@ -97,11 +97,11 @@ if [ $GPU_SUPPORT == 1 ]; then
               -v $HOME/.tmux/:/root/.tmux \
               -v $HOME/.config/:/root/.config \
               -v /run/user/1000:/run/user/1000 \
-              -v $HOME/nano-slam-ros2/datasets/:/root/datasets \
-              -v $HOME/nano-slam-ros2/results/:/root/result \
-              -v $HOME/nano-slam-ros2/orbslam3/orbslam3_ros2/:/root/colcon_ws/src/orbslam3_ros2 \
-              -v $HOME/nano-slam-ros2/orbslam3/orbslam3_interfaces/:/root/colcon_ws/src/orbslam3_interfaces \
-              -v $HOME/nano-slam-ros2/orbslam3/ORB_SLAM3/:/root/ORB_SLAM3-dev \
+              -v $HOME/dist-slam-main//nano-slam-ros2/datasets/:/root/datasets \
+              -v $HOME/dist-slam-main//nano-slam-ros2/results/:/root/result \
+              -v $HOME/dist-slam-main/nano-slam-ros2/orbslam3/orbslam3_ros2/:/root/colcon_ws/src/orbslam3_ros2 \
+              -v $HOME/dist-slam-main//nano-slam-ros2/orbslam3/orbslam3_interfaces/:/root/colcon_ws/src/orbslam3_interfaces \
+              -v $HOME/dist-slam-main//nano-slam-ros2/orbslam3/ORB_SLAM3/:/root/ORB_SLAM3-dev \
               --device=/dev/bus/usb:/dev/bus/usb \
               $REGISTRY/$IMAGE:$VERSION \
               bash
@@ -123,11 +123,11 @@ else
               -v $HOME/.tmux/:/root/.tmux \
               -v $HOME/.config/:/root/.config \
               -v /run/user/1000:/run/user/1000 \
-              -v $HOME/nano-slam-ros2/datasets/:/root/datasets \
-              -v $HOME/nano-slam-ros2/results/:/root/results \
-              -v $HOME/nano-slam-ros2/orbslam3/orbslam3_ros2/:/root/colcon_ws/src/orbslam3_ros2 \
-              -v $HOME/nano-slam-ros2/orbslam3/orbslam3_interfaces/:/root/colcon_ws/src/orbslam3_interfaces \
-              -v $HOME/nano-slam-ros2/orbslam3/ORB_SLAM3/:/root/ORB_SLAM3-dev \
+              -v $HOME/dist-slam-main//nano-slam-ros2/datasets/:/root/datasets \
+              -v $HOME/dist-slam-main//nano-slam-ros2/results/:/root/results \
+              -v $HOME/dist-slam-main//nano-slam-ros2/orbslam3/orbslam3_ros2/:/root/colcon_ws/src/orbslam3_ros2 \
+              -v $HOME/dist-slam-main//nano-slam-ros2/orbslam3/orbslam3_interfaces/:/root/colcon_ws/src/orbslam3_interfaces \
+              -v $HOME/dist-slam-main//nano-slam-ros2/orbslam3/ORB_SLAM3/:/root/ORB_SLAM3-dev \
               --device=/dev/bus/usb:/dev/bus/usb \
               $REGISTRY/$IMAGE:$VERSION \
               bash

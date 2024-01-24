@@ -5,7 +5,7 @@ SCRIPT=$(readlink -f "$0")
 SCRIPT_DIR=$(dirname "${SCRIPT}")
 
 REGISTRY=jussikalliola
-IMAGE=nano-ros2-orbslam3
+IMAGE=nano-ros2-orbslam3-main
 VERSION=latest
 USE_CACHE="1"
 SYSTEM_ARCH=$(uname -m)
