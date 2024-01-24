@@ -329,12 +329,10 @@ namespace Converter {
       }
 
       static std::map<long unsigned int, int> IntTupleVectorToMap(std::vector<int_tuple> rV) {
-        std::map<long unsigned int, int> cppMap;
-
-        for (const auto& tuple : rV) {
-          cppMap.insert(std::make_pair(tuple.x1, tuple.x2));
+        std::map<long unsigned int, int> cppMap = std::map<long unsigned int, int>();
+        for (int_tuple t : rV) {
+          cppMap[t.x1] = t.x2;
         }
-
         return cppMap;
       }
 

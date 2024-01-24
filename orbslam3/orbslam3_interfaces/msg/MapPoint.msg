@@ -3,9 +3,7 @@ string system_id
 # public
 
 uint64 mn_id
-
-int64 tr_mn_id
-int64 lm_mn_id
+string m_str_hex_id
 
 uint64 n_next_id
 
@@ -86,7 +84,7 @@ bool mb_bad
 #MapPoint mp_replaced
 
 # For save relation without pointer, this is necessary for save/load function
-int64 m_backup_replaced_id
+string m_backup_replaced_id
 
 # Scale invariance distances
 float32 mf_min_distance

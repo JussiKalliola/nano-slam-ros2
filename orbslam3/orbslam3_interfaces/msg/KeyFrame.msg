@@ -151,7 +151,7 @@ IMUBias m_imu_bias #IMU::Bias mImuBias;
 # MapPoints associated to keypoints
 MapPoint[] mvp_map_points #std::vector<MapPoint*> mvpMapPoints;
 # For save relation without pointer, this is necessary for save/load function
-int64[] mv_backup_map_points_id #std::vector<long long int> mvBackupMapPointsId;
+string[] mv_backup_map_points_id #std::vector<long long int> mvBackupMapPointsId;
 
 # BoW
 #KeyFrameDatabase mp_key_frame_db #KeyFrameDatabase* mpKeyFrameDB;

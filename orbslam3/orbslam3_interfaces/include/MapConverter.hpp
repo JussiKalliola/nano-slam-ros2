@@ -119,11 +119,11 @@ namespace Converter {
         std::vector<unsigned long int> mvFixedKFs = rM->ms_fixed_kfs;
         std::set<unsigned long int> msFixedKFs(mvFixedKFs.begin(), mvFixedKFs.end());
         long unsigned int mnId = rM->mn_id;
-        std::vector<unsigned long int> mvpBackupMapPointsId = rM->mvp_backup_map_points_ids;
+        std::vector<std::string> mvpBackupMapPointsId = rM->mvp_backup_map_points_ids;
         std::vector<unsigned long int> mvpBackupKeyFramesId = rM->mvp_backup_keyframes_ids;
         unsigned long int mnBackupKFinitialID = rM->mn_backup_kf_initial_id;
         unsigned long int mnBackupKFlowerID = rM->mn_backup_kf_lower_id;
-        std::vector<unsigned long int> mvpBackupReferenceMapPointsId = rM->mvp_reference_map_points_id;
+        std::vector<std::string> mvpBackupReferenceMapPointsId = rM->mvp_reference_map_points_id;
         bool mbImuInitialized = rM->mb_imu_initialized;
         int mnMapChange = rM->mn_map_change;
         int mnMapChangeNotified = rM->mn_map_change_notified;

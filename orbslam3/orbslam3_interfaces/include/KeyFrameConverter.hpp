@@ -218,15 +218,15 @@ namespace Converter {
         // The following variables need to be accessed trough a mutex to be thread safe.
         // sophus poses
         Sophus::SE3<float> mTcw = RosToCpp::PoseToSophusSE3f(rKf->m_tcw);
-        Eigen::Matrix3f mRcw = mTcw.rotationMatrix();
+        //Eigen::Matrix3f mRcw = mTcw.rotationMatrix();
         
-        Sophus::SE3<float> mTwc = RosToCpp::PoseToSophusSE3f(rKf->m_twc);
-        Eigen::Matrix3f mRwc = mTwc.rotationMatrix();
+        //Sophus::SE3<float> mTwc = RosToCpp::PoseToSophusSE3f(rKf->m_twc);
+        //Eigen::Matrix3f mRwc = mTwc.rotationMatrix();
 
         // IMU position
-        Eigen::Vector3f mOwb = RosToCpp::Vector3ToEigenVector3f(rKf->m_owb);
+        //Eigen::Vector3f mOwb = RosToCpp::Vector3ToEigenVector3f(rKf->m_owb);
         // Velocity (Only used for inertial SLAM)
-        Eigen::Vector3f mVw = RosToCpp::Vector3ToEigenVector3f(rKf->m_vw);
+        //Eigen::Vector3f mVw = RosToCpp::Vector3ToEigenVector3f(rKf->m_vw);
         bool mbHasVelocity = rKf->mb_has_velocity;
 
         //Transformation matrix between cameras in stereo fisheye
@@ -239,7 +239,7 @@ namespace Converter {
         // MapPoints associated to keypoints
         // For save relation without pointer, this is necessary for save/load function
         
-        std::vector<long long int> mvBackupMapPointsId(rKf->mv_backup_map_points_id.begin(), rKf->mv_backup_map_points_id.end());//std::vector<long long int> mvBackupMapPointsId = rKf->mv_backup_map_points_id;
+        std::vector<std::string> mvBackupMapPointsId(rKf->mv_backup_map_points_id.begin(), rKf->mv_backup_map_points_id.end());//std::vector<long long int> mvBackupMapPointsId = rKf->mv_backup_map_points_id;
 
         // BoW
         //ORB_SLAM3::KeyFrameDatabase* mpKeyFrameDB = nullptr; //KeyFrameDatabase* mpKeyFrameDB = rKf->;
@@ -348,27 +348,21 @@ namespace Converter {
 
         orb_keyframe* pOKf = new orb_keyframe(bImu, nNextId, mnId, mnFrameId, mTimeStamp,   mnGridCols, mnGridRows,  mfGridElementWidthInv,  mfGridElementHeightInv,  mnTrackReferenceForFrame, mnFuseTargetForKF, mnBALocalForKF, mnBAFixedForKF, mnNumberOfOpt, mnLoopQuery, mnLoopWords, mLoopScore, mnRelocQuery, mnRelocWords, mRelocScore, mnMergeQuery, mnMergeWords, mMergeScore, mnPlaceRecognitionQuery, mnPlaceRecognitionWords, mPlaceRecognitionScore, mbCurrentPlaceRecognition, mTcwGBA, mTcwBefGBA, mVwbGBA, mVwbBefGBA, mBiasGBA, mnBAGlobalForKF, mTcwMerge, mTcwBefMerge, mTwcBefMerge, mVwbMerge, mVwbBefMerge, mBiasMerge, mnMergeCorrectedForKF, mnMergeForKF, mfScaleMerge, mnBALocalForMerge, mfScale, fx, fy, cx, cy, invfx, invfy, mbf, mb, mThDepth, mDistCoef, N, mvKeys, mvKeysUn, mvuRight, mvDepth, mDescriptors, mBowVec, mFeatVec, mTcp, mnScaleLevels, mfScaleFactor, mfLogScaleFactor, mvScaleFactors, mvLevelSigma2, mvInvLevelSigma2, mnMinX, mnMinY, mnMaxX, mnMaxY, /*mPrevKF,*/ /*mNextKF,*/ 
             //mpImuPreintegrated, 
-            mImuCalib, mnOriginMapId, mNameFile, mnDataset, /*mvpLoopCandKFs,*/ /*mvpMergeCandKFs,*/ mTcw, mRcw, mTwc, mRwc, mOwb, mVw, mbHasVelocity, mTlr, mTrl, mImuBias, 
+            mImuCalib, mnOriginMapId, mNameFile, mnDataset, /*mvpLoopCandKFs,*/ /*mvpMergeCandKFs,*/ mTcw, /*mRcw, mTwc, mRwc, mOwb, mVw,*/ mbHasVelocity, mTlr, mTrl, mImuBias, 
             /*mvpMapPoints,*/ 
             mvBackupMapPointsId, /*mpKeyFrameDB,*/ /*mpORBvocabulary,*/ mGrid, /*mConnectedKeyFrameWeights,*/ /*mvpOrderedConnectedKeyFrames,*/ mvOrderedWeights, mBackupConnectedKeyFrameIdWeights, mbFirstConnection, /*mpParent,*/ /*mspChildrens,*/ /*mspLoopEdges,*/ /*mspMergeEdges,*/ mBackupParentId, mvBackupChildrensId, mvBackupLoopEdgesId, mvBackupMergeEdgesId, mbNotErase, mbToBeErased, mbBad, mHalfBaseline, /*mpMap,*/ mBackupPrevKFId, mBackupNextKFId, 
             //mBackupImuPreintegrated, 
             mnBackupIdCamera, mnBackupIdCamera2, mK_, /*mpCamera,*/ /*mpCamera2,*/ mvLeftToRightMatch, mvRightToLeftMatch, mvKeysRight, NLeft, NRight, mGridRight);
        
 
-        //for(size_t i = 0; i < rKf->mvp_map_points.size(); ++i) {
-        //  map_point mp = rKf->mvp_map_points[i];
-        //  orb_map_point* oMp = MapPointConverter::RosMapPointToOrb(&mp, pOKf, mpOrbKeyFrames);
-        //  pOKf->AddMapPoint(oMp, 1);
-        //}
-        
         return pOKf;
 
       }   
 
 
       static keyframe ORBSLAM3KeyFrameToROS(orb_keyframe* pKf) {
-        std::mutex mMutex;
-        std::lock_guard<std::mutex> lock(mMutex);
+        //std::mutex mMutex;
+        //std::lock_guard<std::mutex> lock(mMutex);
         keyframe msgKf = FormDefaultKeyFrameMessage();
         //std::cout << "start of kf conversion" << std::endl;
         // Public 1
@@ -559,14 +553,15 @@ namespace Converter {
         //std::cout << "line 555" << std::endl;
         msgKf.mvp_map_points = msgMps; //std::vector<MapPoint*> mvpMapPoints;
         // For save relation without pointer, this is necessary for save/load function
-        std::vector<long int> mvpMapPointBackup = std::vector<long int>();
+        std::vector<std::string> mvpMapPointBackup = std::vector<std::string>();
         for(const auto& tempMP : pKf->GetMapPointMatches())
         {
           if(tempMP)
           {
-            mvpMapPointBackup.push_back(tempMP->mnId);
-          } else {
-            mvpMapPointBackup.push_back(-1);
+            mvpMapPointBackup.push_back(tempMP->mstrHexId);
+          } 
+          else {
+            mvpMapPointBackup.push_back("");
           }
         }
         //std::cout << "MAP POINT MATCHES=" << pKf->GetMapPointMatches().size() << ", " << pKf->N << ", " << mvpMapPointBackup.size() << std::endl;
@@ -711,7 +706,7 @@ namespace Converter {
 
       }
       
-      static void FillKeyFrameData(orb_keyframe* mopKf, keyframe::SharedPtr mrpKf, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames, std::map<long unsigned int, orb_map*> mpOrbMaps, std::map<long unsigned int, orb_map_point*> mpOrbMapPoints, bool* bUnprocessed) 
+      static void FillKeyFrameData(orb_keyframe* mopKf, keyframe::SharedPtr mrpKf, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames, std::map<long unsigned int, orb_map*> mpOrbMaps, std::map<std::string, orb_map_point*> mpOrbMapPoints, bool* bUnprocessed) 
       {
 
         // Preintegrated IMU measurements from previous keyframe

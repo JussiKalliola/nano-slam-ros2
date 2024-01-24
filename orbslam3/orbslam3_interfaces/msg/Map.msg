@@ -29,7 +29,7 @@ MapPoint[] msp_map_points                 # std::set<MapPoint*> mspMapPoints;
 KeyFrame[] msp_keyframes                  # std::set<KeyFrame*> mspKeyFrames;
 
 # Save/load, the set structure is broken in libboost 1.58 for ubuntu 16.04, a vector is serializated
-uint64[] mvp_backup_map_points_ids          # std::vector<MapPoint*> mvpBackupMapPoints;
+string[] mvp_backup_map_points_ids          # std::vector<MapPoint*> mvpBackupMapPoints;
 uint64[] mvp_backup_keyframes_ids           # std::vector<KeyFrame*> mvpBackupKeyFrames;
 
 #KeyFrame mp_kf_initial                    # KeyFrame* mpKFinitial;
@@ -38,7 +38,7 @@ uint64[] mvp_backup_keyframes_ids           # std::vector<KeyFrame*> mvpBackupKe
 int64 mn_backup_kf_initial_id            # unsigned long int mnBackupKFinitialID;
 int64 mn_backup_kf_lower_id              # unsigned long int mnBackupKFlowerID;
 
-uint64[] mvp_reference_map_points_id       # std::vector<MapPoint*> mvpReferenceMapPoints;
+string[] mvp_reference_map_points_id       # std::vector<MapPoint*> mvpReferenceMapPoints;
 
 bool mb_imu_initialized                   # bool mbImuInitialized;
 
