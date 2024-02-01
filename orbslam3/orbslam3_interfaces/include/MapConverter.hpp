@@ -110,7 +110,7 @@ namespace Converter {
         return rM;
       }
       
-      static orb_map* RosMapToOrbMap(map::SharedPtr rM) {        
+      static orb_map* RosMapToOrbMap(map::SharedPtr rM, orb_map* mpPrevMap) {        
         
 
         bool mbFail = rM->mb_fail;
@@ -137,11 +137,15 @@ namespace Converter {
         bool mbIMU_BA1 = rM->mb_imu_ba1;
         bool mbIMU_BA2 = rM->mb_imu_ba2;
 
-        orb_map* pM = new orb_map(mbFail, msOptKFs, msFixedKFs, mnId, mvpBackupMapPointsId, mvpBackupKeyFramesId, mnBackupKFinitialID, mnBackupKFlowerID, mvpBackupReferenceMapPointsId, mbImuInitialized, mnMapChange, mnMapChangeNotified, mnInitKFid, mnMaxKFid, mnBigChangeIdx, mIsInUse, mHasTumbnail, mbBad, mbIsInertial, mbIMU_BA1, mbIMU_BA2);
-
-        //std::cout << "Map." << pM->GetId() << " After update - #MP=" << pM->GetAllMapPoints().size() <<", #KF=" << pM->GetAllKeyFrames().size() << ", #RefMPs" << pM->GetReferenceMapPoints().size() << ", initKF=" << pM->GetInitKFid() << ", MaxKF=" << pM->GetMaxKFid() << ", OriginKFid" << pM->GetOriginKF()->mnId << std::endl;
-
-        return pM;
+        if(mpPrevMap)
+        {
+          std::cout << "updating map..." << std::endl;
+          mpPrevMap->UpdateMap(mbFail, msOptKFs, msFixedKFs, mnId, mvpBackupMapPointsId, mvpBackupKeyFramesId, mnBackupKFinitialID, mnBackupKFlowerID, mvpBackupReferenceMapPointsId, mbImuInitialized, mnMapChange, mnMapChangeNotified, mnInitKFid, mnMaxKFid, mnBigChangeIdx, mIsInUse, /*mHasTumbnail,*/ mbBad/*, mbIsInertial, mbIMU_BA1, mbIMU_BA2*/);
+          return mpPrevMap;
+        } else {
+          std::cout << "Creating a new map..." << std::endl;
+          return new orb_map(mbFail, msOptKFs, msFixedKFs, mnId, mvpBackupMapPointsId, mvpBackupKeyFramesId, mnBackupKFinitialID, mnBackupKFlowerID, mvpBackupReferenceMapPointsId, mbImuInitialized, mnMapChange, mnMapChangeNotified, mnInitKFid, mnMaxKFid, mnBigChangeIdx, mIsInUse, mHasTumbnail, mbBad, mbIsInertial, mbIMU_BA1, mbIMU_BA2);
+        }
 
     } 
 

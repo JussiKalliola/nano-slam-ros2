@@ -28,7 +28,7 @@ namespace Converter {
         
         // public
         //std::cout << "MapPoint public" << std::endl;
-        //msgMp.mn_id = pMp->mnId;
+        msgMp.mn_id = pMp->mnId;
         msgMp.m_str_hex_id = pMp->mstrHexId;
 
         msgMp.n_next_id = pMp->nNextId;
@@ -144,12 +144,12 @@ namespace Converter {
         return msgMp;
       } 
 
-      static orb_map_point* RosMapPointToOrb(map_point::SharedPtr rMp, long int hostKfId=-1, bool mbMPExists = false) {
+      static orb_map_point* RosMapPointToOrb(map_point::SharedPtr rMp, orb_map_point* mpExistingMP = static_cast<orb_map_point*>(NULL)) {
         
         std::mutex mMutexNewMP;
         std::lock_guard<std::mutex> lock(mMutexNewMP);
         
-        long long int mnId = (mbMPExists) ? rMp->mn_id : -1;
+        //long long int mnId = (mbMPExists) ? rMp->mn_id : -1;
         std::string mstrHexId = rMp->m_str_hex_id;
         long int mnFirstKFid = rMp->mn_first_kf_id;
         long int mnFirstFrame = rMp->mn_first_frame;
@@ -237,8 +237,12 @@ namespace Converter {
         //}
         
         //std::cout << "===================== HOST KF ID=" << mBackupHostKFId << ", REF ID=" << mBackupRefKFId << ", REPLACED ID=" << mBackupReplacedId << " =============================" << std::endl;
-
-        return new orb_map_point(mnId, mstrHexId, mnFirstKFid, mnFirstFrame, nObs, mTrackProjX, mTrackProjY, mTrackDepth, mTrackDepthR, mTrackProjXR, mTrackProjYR, mbTrackInView, mbTrackInViewR, mnTrackScaleLevel, mnTrackScaleLevelR, mTrackViewCos, mTrackViewCosR, mnTrackReferenceForFrame, mnLastFrameSeen, mnBALocalForKF, mnFuseCandidateForKF, mnLoopPointForKF, mnCorrectedByKF, mnCorrectedReference, mPosGBA, mnBAGlobalForKF, mnBALocalForMerge, mPosMerge, mNormalVectorMerge, mInvDepth, mInitU, mInitV, /*mpHostKF,*/ mBackupHostKFId, mnOriginMapId, mWorldPos, /*mObservations,*/ mBackupObservationsId1, mBackupObservationsId2, mNormalVector, mDescriptor, /*mpRefKF,*/ mBackupRefKFId, mnVisible, mnFound, mbBad, /*mpReplaced,*/ mBackupReplacedId, mfMinDistance, mfMaxDistance /*mpMap*/);
+        if(mpExistingMP)
+        {
+          mpExistingMP->UpdateMapPoint(mnFirstKFid, mnFirstFrame, nObs, mTrackProjX, mTrackProjY, mTrackDepth, mTrackDepthR, mTrackProjXR, mTrackProjYR, mbTrackInView, mbTrackInViewR, mnTrackScaleLevel, mnTrackScaleLevelR, mTrackViewCos, mTrackViewCosR, mnTrackReferenceForFrame, mnLastFrameSeen, mnBALocalForKF, mnFuseCandidateForKF, mnLoopPointForKF, mnCorrectedByKF, mnCorrectedReference, mPosGBA, mnBAGlobalForKF, mnBALocalForMerge, mPosMerge, mNormalVectorMerge, mInvDepth, mInitU, mInitV, /*mpHostKF,*/ mBackupHostKFId, mnOriginMapId, mWorldPos, /*mObservations,*/ mBackupObservationsId1, mBackupObservationsId2, mNormalVector, mDescriptor, /*mpRefKF,*/ mBackupRefKFId, mnVisible, mnFound, mbBad, /*mpReplaced,*/ mBackupReplacedId, mfMinDistance, mfMaxDistance /*mpMap*/);
+        return mpExistingMP;
+        } else
+          return new orb_map_point(-1, mstrHexId, mnFirstKFid, mnFirstFrame, nObs, mTrackProjX, mTrackProjY, mTrackDepth, mTrackDepthR, mTrackProjXR, mTrackProjYR, mbTrackInView, mbTrackInViewR, mnTrackScaleLevel, mnTrackScaleLevelR, mTrackViewCos, mTrackViewCosR, mnTrackReferenceForFrame, mnLastFrameSeen, mnBALocalForKF, mnFuseCandidateForKF, mnLoopPointForKF, mnCorrectedByKF, mnCorrectedReference, mPosGBA, mnBAGlobalForKF, mnBALocalForMerge, mPosMerge, mNormalVectorMerge, mInvDepth, mInitU, mInitV, /*mpHostKF,*/ mBackupHostKFId, mnOriginMapId, mWorldPos, /*mObservations,*/ mBackupObservationsId1, mBackupObservationsId2, mNormalVector, mDescriptor, /*mpRefKF,*/ mBackupRefKFId, mnVisible, mnFound, mbBad, /*mpReplaced,*/ mBackupReplacedId, mfMinDistance, mfMaxDistance /*mpMap*/);
       }
 
       static map_point FormDefaultMapPointMessage()
