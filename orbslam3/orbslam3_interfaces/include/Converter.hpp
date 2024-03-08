@@ -285,7 +285,7 @@ namespace Converter {
       }
     
       static Sophus::SE3f PoseToSophusSE3f(geometry_pose rP) {
-        Eigen::Quaternionf q = Eigen::Quaternionf(rP.orientation.x, rP.orientation.y, rP.orientation.z, rP.orientation.w);
+        Eigen::Quaternionf q = Eigen::Quaternionf(rP.orientation.w, rP.orientation.x, rP.orientation.y, rP.orientation.z);
         Eigen::Vector3f t = Eigen::Vector3f(rP.position.x, rP.position.y, rP.position.z);
         Sophus::SE3f sopP(q, t);
         
@@ -331,8 +331,14 @@ namespace Converter {
       static std::map<long unsigned int, int> IntTupleVectorToMap(std::vector<int_tuple> rV) {
         std::map<long unsigned int, int> cppMap = std::map<long unsigned int, int>();
         for (int_tuple t : rV) {
+          //std::cout << t.x1 <<", " << t.x2 << ", ";
           cppMap[t.x1] = t.x2;
         }
+   
+        //// Loop through the map using iterators
+        //for (auto it = cppMap.begin(); it != cppMap.end(); ++it) {
+        //    std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
+        //}
         return cppMap;
       }
 
@@ -446,6 +452,8 @@ namespace Converter {
       static std::vector<bow_vector> DBoW2VectorToRosBowVector(DBoW2::BowVector v) {
         std::vector<bow_vector> msgBv;
 
+        std::cout << "converting bow vector from orb to ros" << std::endl;
+        
         for (const auto& entry : v) {
           bow_vector mBv;
           mBv.word_id = entry.first;
@@ -459,6 +467,7 @@ namespace Converter {
 
       static std::vector<bow_feature_vector> DBoW2FeatVectorToRosBowFeatureVector(DBoW2::FeatureVector fV) {
         std::vector<bow_feature_vector> msgBfv;
+        std::cout << "converting bow feature vector from orb to ros" << std::endl;
 
         for(const auto& entry : fV) {
           bow_feature_vector bFv;
@@ -553,9 +562,9 @@ namespace Converter {
 
       static DBoW2::BowVector RosBowVectorToDBoW2Vector(std::vector<bow_vector> rBv) {
         DBoW2::BowVector oBv = DBoW2::BowVector();
-
+        std::cout << "converting bow vector from ros to orb" << std::endl;
         for (const auto& x : rBv) {
-        oBv.addWeight(x.word_id, x.word_value);
+          oBv.addWeight(x.word_id, x.word_value);
         }
 
         return oBv;
@@ -564,6 +573,7 @@ namespace Converter {
 
       static DBoW2::FeatureVector RosBowFeatureVectorToDBoW2FeatureVector( std::vector<bow_feature_vector> rBFv) {
         DBoW2::FeatureVector oBFv = DBoW2::FeatureVector();
+        std::cout << "converting bow feature vector from ros to orb" << std::endl;
 
         for(const auto& entry : rBFv) {
          unsigned int node_id = entry.node_id;

@@ -105,7 +105,7 @@ namespace Converter {
         // Refernce KeyFrame
         //KeyFrame mp_ref_kf          // This one we have as m_backup_ref_kf_id
         orb_keyframe* mpRefKF = pMp->GetReferenceKeyFrame();
-        msgMp.m_backup_ref_kf_id = (mpRefKF) ? mpRefKF->mnId : pMp->mnFirstKFid; //static_cast<long long int>(pMp->GetRefBackup()); //pMp->GetReferenceKeyFrame()->mnId;
+        msgMp.m_backup_ref_kf_id = (mpRefKF) ? mpRefKF->mnId : pMp->GetRefBackup(); //static_cast<long long int>(pMp->GetRefBackup()); //pMp->GetReferenceKeyFrame()->mnId;
         
         //std::cout << "MapPoint Tracking counters" << std::endl;
         // Tracking counters
@@ -126,8 +126,8 @@ namespace Converter {
 
         //std::cout << "MapPoint distance invariance" << std::endl;
         // Scale invariance distances
-        msgMp.mf_min_distance = pMp->GetMinDistanceInvariance();
-        msgMp.mf_max_distance = pMp->GetMaxDistanceInvariance();
+        msgMp.mf_min_distance = pMp->GetMinDistance();
+        msgMp.mf_max_distance = pMp->GetMaxDistance();
         
         //std::cout << "MapPoint end" << std::endl;
         //Map mp_map                  // This one we have as mp_map_id 

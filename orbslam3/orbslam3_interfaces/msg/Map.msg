@@ -32,6 +32,9 @@ KeyFrame[] msp_keyframes                  # std::set<KeyFrame*> mspKeyFrames;
 string[] mvp_backup_map_points_ids          # std::vector<MapPoint*> mvpBackupMapPoints;
 uint64[] mvp_backup_keyframes_ids           # std::vector<KeyFrame*> mvpBackupKeyFrames;
 
+uint64[] mvp_erased_keyframe_ids
+string[] mvp_erased_mappoint_ids
+
 #KeyFrame mp_kf_initial                    # KeyFrame* mpKFinitial;
 #KeyFrame mp_kf_lower_id                   # KeyFrame* mpKFlowerID;
 

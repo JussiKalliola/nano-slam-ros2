@@ -25,8 +25,8 @@ namespace Converter {
 
     public:
       static map OrbMapToRosMap(orb_map* opM) {
-        //std::mutex mMutexNewMP;
-        //std::lock_guard<std::mutex> lock(mMutexNewMP);
+        std::mutex mMutexNewMP;
+        std::lock_guard<std::mutex> lock(mMutexNewMP);
         
         map rM;
         //KeyFrame[] mvp_keyframe_origins           // vector<KeyFrame*> mvpKeyFrameOrigins;
@@ -51,20 +51,29 @@ namespace Converter {
         
 
         //std::cout << " #################### num of map points "<< opM->GetAllMapPoints().size() << std::endl;
+        std::set<std::string> mspUpdatedMapPointIds = opM->GetUpdatedMPIds();
         for(ORB_SLAM3::MapPoint* mp : opM->GetAllMapPoints())
         {
+          //if(mspUpdatedMapPointIds.find(mp->mstrHexId) != mspUpdatedMapPointIds.end())
+          //{
           rM.msp_map_points.push_back(Converter::MapPointConverter::ORBSLAM3MapPointToROS(mp));
+          //}
         }
         
         //std::cout << "before all keyframes" << std::endl;
         if(opM->GetAllKeyFrames().size() > 0) {
-          for(ORB_SLAM3::KeyFrame* kf : opM->GetAllKeyFrames())
+          std::set<unsigned long int> mspUpdatedKeyFrameIds = opM->GetUpdatedKFIds();
+          std::vector<ORB_SLAM3::KeyFrame*> mvpAllKeyFrames = opM->GetAllKeyFrames();
+          for(ORB_SLAM3::KeyFrame* kf : mvpAllKeyFrames)
           {
-            //if(kf == nullptr) std::cout << "kf is null" << std::endl;
-            //std::cout << "processing kf=" << kf->mnId << std::endl;
-            rM.msp_keyframes.push_back(Converter::KeyFrameConverter::ORBSLAM3KeyFrameToROS(kf));
+            if(mspUpdatedKeyFrameIds.find(kf->mnId) != mspUpdatedKeyFrameIds.end())
+            {
+              rM.msp_keyframes.push_back(Converter::KeyFrameConverter::ORBSLAM3KeyFrameToROS(kf, true, mspUpdatedMapPointIds));
+            }
           }
         }
+
+        //opM->ClearUpdatedKFIds();
         //MapPoint[] msp_map_points                 // std::set<MapPoint*> mspMapPoints;
         //KeyFrame[] msp_keyframes                  // std::set<KeyFrame*> mspKeyFrames;
 
@@ -72,6 +81,15 @@ namespace Converter {
         // Save/load, the set structure is broken in libboost 1.58 for ubuntu 16.04, a vector is serializated
         rM.mvp_backup_map_points_ids = opM->GetBackupMapPointsId();          // std::vector<MapPoint*> mvpBackupMapPoints;
         rM.mvp_backup_keyframes_ids = opM->GetBackupKeyFrames();           // std::vector<KeyFrame*> mvpBackupKeyFrames;
+        
+        std::set<unsigned long int> mspErasedKFIds = opM->GetErasedKFIds();
+        std::vector<unsigned long int> mvpErasedKFIds(mspErasedKFIds.begin(), mspErasedKFIds.end()); 
+        rM.mvp_erased_keyframe_ids = mvpErasedKFIds;
+
+
+        std::set<std::string> mspErasedMPIds = opM->GetErasedMPIds();
+        std::vector<std::string> mvpErasedMPIds(mspErasedMPIds.begin(), mspErasedMPIds.end()); 
+        rM.mvp_erased_mappoint_ids = mvpErasedMPIds;
 
         //KeyFrame mp_kf_initial                    // KeyFrame* mpKFinitial;
         //KeyFrame mp_kf_lower_id                   // KeyFrame* mpKFlowerID;
@@ -121,6 +139,8 @@ namespace Converter {
         long unsigned int mnId = rM->mn_id;
         std::vector<std::string> mvpBackupMapPointsId = rM->mvp_backup_map_points_ids;
         std::vector<unsigned long int> mvpBackupKeyFramesId = rM->mvp_backup_keyframes_ids;
+        
+        vector<unsigned long int> mvBackupKeyFrameOriginsId = rM->mv_backup_keyframe_origins_id;     // vector<unsigned long int> mvBackupKeyFrameOriginsId;
         unsigned long int mnBackupKFinitialID = rM->mn_backup_kf_initial_id;
         unsigned long int mnBackupKFlowerID = rM->mn_backup_kf_lower_id;
         std::vector<std::string> mvpBackupReferenceMapPointsId = rM->mvp_reference_map_points_id;
@@ -140,11 +160,11 @@ namespace Converter {
         if(mpPrevMap)
         {
           std::cout << "updating map..." << std::endl;
-          mpPrevMap->UpdateMap(mbFail, msOptKFs, msFixedKFs, mnId, mvpBackupMapPointsId, mvpBackupKeyFramesId, mnBackupKFinitialID, mnBackupKFlowerID, mvpBackupReferenceMapPointsId, mbImuInitialized, mnMapChange, mnMapChangeNotified, mnInitKFid, mnMaxKFid, mnBigChangeIdx, mIsInUse, /*mHasTumbnail,*/ mbBad/*, mbIsInertial, mbIMU_BA1, mbIMU_BA2*/);
+          mpPrevMap->UpdateMap(mbFail, msOptKFs, msFixedKFs, mnId, mvpBackupMapPointsId, mvpBackupKeyFramesId, mvBackupKeyFrameOriginsId, mnBackupKFinitialID, mnBackupKFlowerID, mvpBackupReferenceMapPointsId, mbImuInitialized, mnMapChange, mnMapChangeNotified, mnInitKFid, mnMaxKFid, mnBigChangeIdx, mIsInUse, /*mHasTumbnail,*/ mbBad/*, mbIsInertial, mbIMU_BA1, mbIMU_BA2*/);
           return mpPrevMap;
         } else {
           std::cout << "Creating a new map..." << std::endl;
-          return new orb_map(mbFail, msOptKFs, msFixedKFs, mnId, mvpBackupMapPointsId, mvpBackupKeyFramesId, mnBackupKFinitialID, mnBackupKFlowerID, mvpBackupReferenceMapPointsId, mbImuInitialized, mnMapChange, mnMapChangeNotified, mnInitKFid, mnMaxKFid, mnBigChangeIdx, mIsInUse, mHasTumbnail, mbBad, mbIsInertial, mbIMU_BA1, mbIMU_BA2);
+          return new orb_map(mbFail, msOptKFs, msFixedKFs, mnId, mvpBackupMapPointsId, mvpBackupKeyFramesId, mvBackupKeyFrameOriginsId, mnBackupKFinitialID, mnBackupKFlowerID, mvpBackupReferenceMapPointsId, mbImuInitialized, mnMapChange, mnMapChangeNotified, mnInitKFid, mnMaxKFid, mnBigChangeIdx, mIsInUse, mHasTumbnail, mbBad, mbIsInertial, mbIMU_BA1, mbIMU_BA2);
         }
 
     } 
