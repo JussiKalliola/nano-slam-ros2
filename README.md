@@ -137,6 +137,10 @@ evo_traj tum ~/results/TUM/room1/monocular/KeyFrameTrajectory.txt -p
 
 #Multiple trajectories with visualization
 evo_traj tum ~/results/TUM/room1/monocular/* -p
+
+# Alignment and scaling with GT data
+evo_traj tum ~/results/EuRoC/MH_01/monocular/KeyFrameTrajectory* --ref ~/results/EuRoC/MH_01/monocular/gt.txt -p -as
+
 ```
 
 More information from the documentation in [github by Michael Grupp](https://github.com/MichaelGrupp/evo/wiki/evo_traj)
