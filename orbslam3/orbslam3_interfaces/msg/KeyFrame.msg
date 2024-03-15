@@ -1,4 +1,5 @@
 string system_id
+uint8 target # 0=nowhere, 1=tracking, 2=LM, 3=LC
 
 # Public 1
 bool b_imu
@@ -204,6 +205,9 @@ uint32 mn_backup_id_camera2 #unsigned int mnBackupIdCamera, mnBackupIdCamera2;
 
 # Calibration
 Matrix m_k_calib # Eigen::Matrix3f mK_;
+
+
+uint8 mn_last_module
 
 # Mutex
 #std::mutex mMutexPose; // for pose, velocity and biases

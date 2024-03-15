@@ -237,7 +237,7 @@ RUN cd /root \
     && make -j8 && make install
 
 # Insrall ORB SLAM3
-RUN cd /root && git clone https://github.com/JussiKalliola/ORB_SLAM3.git ORB_SLAM3 \
+RUN cd /root && git clone https://github.com/JussiKalliola/ORB_SLAM3.git -b develop ORB_SLAM3 \
     && cd /root/ORB_SLAM3 && ./build.sh \
     && cd /root/ORB_SLAM3/Thirdparty/Sophus/build && make install
 
@@ -246,27 +246,23 @@ RUN cd /root && git clone https://github.com/JussiKalliola/ORB_SLAM3.git ORB_SLA
 #&& sed -i "33s#.*#find_package(OpenCV 4.2)#" CMakeLists.txt \  
 
 RUN cd ${ROS_ROOT} \
-  && colcon build --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release \
+  && colcon build --merge-install --packages-skip libyaml_vendor --cmake-args -DCMAKE_BUILD_TYPE=Release \
   &&. ${ROS_ROOT}/install/local_setup.bash \
   && echo "source $ROS_ROOT/install/setup.bash" >> /etc/bash.bashrc \
-  && echo "source $ROS_ROOT/install/local_setup.bash" >> /etc/bash.bashrc \
-  && TEST_PLUGINLIB_PACKAGE="${ROS_ROOT}/build/pluginlib/pluginlib_enable_plugin_testing/install/test_pluginlib__test_pluginlib/share/test_pluginlib/package.xml" && \
-  sed -i '/<\/description>/a <license>BSD<\/license>' $TEST_PLUGINLIB_PACKAGE && \
-  sed -i '/<\/description>/a <maintainer email="michael@openrobotics.org">Michael Carroll<\/maintainer>' $TEST_PLUGINLIB_PACKAGE && \
-  cat $TEST_PLUGINLIB_PACKAGE
+  && echo "source $ROS_ROOT/install/local_setup.bash" >> /etc/bash.bashrc
 
 
 #ompl
-RUN git clone https://github.com/ompl/ompl.git \
-  && cd ompl \
-  && mkdir build && cd build \
-  && cmake .. && make -j`nproc` install
-
-# OctoMap
-ENV ROSDEP_SKIP_PACKAGES="$ROSDEP_SKIP_PACKAGES liboctomap"
-RUN git clone https://github.com/OctoMap/octomap.git \
-  && cd octomap/octomap \
-  && mkdir build && cd build && cmake .. && make -j`nproc` install
+#RUN git clone https://github.com/ompl/ompl.git \
+#  && cd ompl \
+#  && mkdir build && cd build \
+#  && cmake .. && make -j`nproc` install
+#
+## OctoMap
+#ENV ROSDEP_SKIP_PACKAGES="$ROSDEP_SKIP_PACKAGES liboctomap"
+#RUN git clone https://github.com/OctoMap/octomap.git \
+#  && cd octomap/octomap \
+#  && mkdir build && cd build && cmake .. && make -j`nproc` install
 
 
 # pcl_ros

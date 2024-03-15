@@ -95,7 +95,7 @@ if [ $GPU_SUPPORT == 1 ]; then
               -v /etc/timezone:/etc/timezone:ro \
               -v /etc/localtime:/etc/localtime:ro \
               -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-              -v $HOME/.Xauthority:/root/.Xauthority \
+              -v $HOME/.Xauthority:/root/.Xauthority:rw \
               -v $HOME/.tmux/:/root/.tmux \
               -v $HOME/.config/:/root/.config \
               -v /run/user/1000:/run/user/1000 \
@@ -115,7 +115,7 @@ else
               --pid=host \
               --cap-add NET_ADMIN \
               --privileged \
-              -e DISPLAY=$DISPLAY \
+              -e DISPLAY=docker.for.mac.host.internal:0 \
               -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
               -e PYTHONBUFFERED=1 \
               -e TARGET_BUILD=${TARGET_BUILD} \

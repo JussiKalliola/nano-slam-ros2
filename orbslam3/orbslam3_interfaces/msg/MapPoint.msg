@@ -93,6 +93,8 @@ float32 mf_max_distance
 int64 mp_map_id
 #Map mp_map
 
+uint8 mn_last_module
+
 # mutex
 # std::mutex m_mutex_pos
 # std::mutex m_mutex_features

@@ -196,11 +196,12 @@ namespace Converter {
         // Backup for Cameras
         unsigned int mnBackupIdCamera  = rKf->mn_backup_id_camera;
         unsigned int mnBackupIdCamera2 = rKf->mn_backup_id_camera2;
-
+        
+        unsigned int mnLastModule = rKf->mn_last_module;
         
         if(mpExistingKF)
         {
-          mpExistingKF->UpdateKeyFrame(bImu, /*mnFrameId, mTimeStamp,   mnGridCols, mnGridRows,  mfGridElementWidthInv,  mfGridElementHeightInv,*/ /*mnTrackReferenceForFrame, mnFuseTargetForKF,*/ mnBALocalForKF, mnBAFixedForKF, mnNumberOfOpt, mnLoopQuery, mnLoopWords, mLoopScore, mnRelocQuery, mnRelocWords, mRelocScore, mnMergeQuery, mnMergeWords, mMergeScore, mnPlaceRecognitionQuery, mnPlaceRecognitionWords, mPlaceRecognitionScore, mbCurrentPlaceRecognition, mTcwGBA, mTcwBefGBA, mVwbGBA, mVwbBefGBA, mBiasGBA, mnBAGlobalForKF, mTcwMerge, mTcwBefMerge, mTwcBefMerge, mVwbMerge, mVwbBefMerge, mBiasMerge, mnMergeCorrectedForKF, mnMergeForKF, mfScaleMerge, mnBALocalForMerge, mfScale, /*fx, fy, cx, cy, invfx, invfy, mbf, mb, mThDepth,*/ /*mDistCoef,*/ /*N, mvKeys, mvKeysUn, mvuRight, mvDepth, mDescriptors,*/ /*mBowVec, mFeatVec,*/ mTcp, /*mnScaleLevels, mfScaleFactor, mfLogScaleFactor, mvScaleFactors, mvLevelSigma2, mvInvLevelSigma2, mnMinX, mnMinY, mnMaxX, mnMaxY,*/ /*mPrevKF,*/ /*mNextKF,*/ /*mpImuPreintegrated,*/ /*mImuCalib, mnOriginMapId, mNameFile, mnDataset, *//*mvpLoopCandKFs,*/ /*mvpMergeCandKFs,*/ mvLoopCandKFIds, mvMergeCandKFIds, mTcw, /*mRcw, mTwc, mRwc, mOwb, mVw,*/ mbHasVelocity, mTlr, mTrl, /*mImuBias,*/ /*mvpMapPoints,*/ mvBackupMapPointsId, /*mpKeyFrameDB,*/ /*mpORBvocabulary,*/ /*mGrid,*/ /*mConnectedKeyFrameWeights,*/ /*mvpOrderedConnectedKeyFrames,*/ mvOrderedWeights, mBackupConnectedKeyFrameIdWeights, mbFirstConnection, /*mpParent,*/ /*mspChildrens,*/ /*mspLoopEdges,*/ /*mspMergeEdges,*/ mBackupParentId, mvBackupChildrensId, mvBackupLoopEdgesId, mvBackupMergeEdgesId, mbNotErase, mbToBeErased, mbBad, mHalfBaseline, /*mpMap,*/ mBackupPrevKFId, mBackupNextKFId, /*mBackupImuPreintegrated, */  mnBackupIdCamera, mnBackupIdCamera2 /*mK_,*/ /*mpCamera,*/ /*mpCamera2,*/ /*mvLeftToRightMatch, mvRightToLeftMatch,*/ /*mvKeysRight, NLeft, NRight,*/ /*mGridRight*/);
+          mpExistingKF->UpdateKeyFrame(bImu, /*mnFrameId, mTimeStamp,   mnGridCols, mnGridRows,  mfGridElementWidthInv,  mfGridElementHeightInv,*/ /*mnTrackReferenceForFrame, mnFuseTargetForKF,*/ mnBALocalForKF, mnBAFixedForKF, mnNumberOfOpt, mnLoopQuery, mnLoopWords, mLoopScore, mnRelocQuery, mnRelocWords, mRelocScore, mnMergeQuery, mnMergeWords, mMergeScore, mnPlaceRecognitionQuery, mnPlaceRecognitionWords, mPlaceRecognitionScore, mbCurrentPlaceRecognition, mTcwGBA, mTcwBefGBA, mVwbGBA, mVwbBefGBA, mBiasGBA, mnBAGlobalForKF, mTcwMerge, mTcwBefMerge, mTwcBefMerge, mVwbMerge, mVwbBefMerge, mBiasMerge, mnMergeCorrectedForKF, mnMergeForKF, mfScaleMerge, mnBALocalForMerge, mfScale, /*fx, fy, cx, cy, invfx, invfy, mbf, mb, mThDepth,*/ /*mDistCoef,*/ /*N, mvKeys, mvKeysUn, mvuRight, mvDepth, mDescriptors,*/ /*mBowVec, mFeatVec,*/ mTcp, /*mnScaleLevels, mfScaleFactor, mfLogScaleFactor, mvScaleFactors, mvLevelSigma2, mvInvLevelSigma2, mnMinX, mnMinY, mnMaxX, mnMaxY,*/ /*mPrevKF,*/ /*mNextKF,*/ /*mpImuPreintegrated,*/ /*mImuCalib, mnOriginMapId, mNameFile, mnDataset, *//*mvpLoopCandKFs,*/ /*mvpMergeCandKFs,*/ mvLoopCandKFIds, mvMergeCandKFIds, mTcw, /*mRcw, mTwc, mRwc, mOwb, mVw,*/ mbHasVelocity, mTlr, mTrl, /*mImuBias,*/ /*mvpMapPoints,*/ mvBackupMapPointsId, /*mpKeyFrameDB,*/ /*mpORBvocabulary,*/ /*mGrid,*/ /*mConnectedKeyFrameWeights,*/ /*mvpOrderedConnectedKeyFrames,*/ mvOrderedWeights, mBackupConnectedKeyFrameIdWeights, mbFirstConnection, /*mpParent,*/ /*mspChildrens,*/ /*mspLoopEdges,*/ /*mspMergeEdges,*/ mBackupParentId, mvBackupChildrensId, mvBackupLoopEdgesId, mvBackupMergeEdgesId, mbNotErase, mbToBeErased, mbBad, mHalfBaseline, /*mpMap,*/ mBackupPrevKFId, mBackupNextKFId, /*mBackupImuPreintegrated, */  mnBackupIdCamera, mnBackupIdCamera2, /*mK_,*/ mnLastModule /*mpCamera,*/ /*mpCamera2,*/ /*mvLeftToRightMatch, mvRightToLeftMatch,*/ /*mvKeysRight, NLeft, NRight,*/ /*mGridRight*/);
           return mpExistingKF;
         } else {
           //BoW
@@ -279,17 +280,14 @@ namespace Converter {
           std::vector< std::vector <std::vector<size_t> > > mGridRight = std::vector< std::vector <std::vector<size_t> > >(); //std::vector< std::vector <std::vector<size_t> > > mGridRight = rKf->;
           
 
-          return new orb_keyframe(bImu, nNextId, mnId, mnFrameId, mTimeStamp,   mnGridCols, mnGridRows,  mfGridElementWidthInv,  mfGridElementHeightInv,  mnTrackReferenceForFrame, mnFuseTargetForKF, mnBALocalForKF, mnBAFixedForKF, mnNumberOfOpt, mnLoopQuery, mnLoopWords, mLoopScore, mnRelocQuery, mnRelocWords, mRelocScore, mnMergeQuery, mnMergeWords, mMergeScore, mnPlaceRecognitionQuery, mnPlaceRecognitionWords, mPlaceRecognitionScore, mbCurrentPlaceRecognition, mTcwGBA, mTcwBefGBA, mVwbGBA, mVwbBefGBA, mBiasGBA, mnBAGlobalForKF, mTcwMerge, mTcwBefMerge, mTwcBefMerge, mVwbMerge, mVwbBefMerge, mBiasMerge, mnMergeCorrectedForKF, mnMergeForKF, mfScaleMerge, mnBALocalForMerge, mfScale, fx, fy, cx, cy, invfx, invfy, mbf, mb, mThDepth, mDistCoef, N, mvKeys, mvKeysUn, mvuRight, mvDepth, mDescriptors, /*mBowVec, mFeatVec,*/ mTcp, mnScaleLevels, mfScaleFactor, mfLogScaleFactor, mvScaleFactors, mvLevelSigma2, mvInvLevelSigma2, mnMinX, mnMinY, mnMaxX, mnMaxY, /*mPrevKF,*/ /*mNextKF,*/ /*mpImuPreintegrated,*/ mImuCalib, mnOriginMapId, mNameFile, mnDataset, /*mvpLoopCandKFs,*/ /*mvpMergeCandKFs,*/ mvLoopCandKFIds, mvMergeCandKFIds, mTcw, /*mRcw, mTwc, mRwc, mOwb, mVw,*/ mbHasVelocity, mTlr, mTrl, mImuBias, /*mvpMapPoints,*/ mvBackupMapPointsId, /*mpKeyFrameDB,*/ /*mpORBvocabulary,*/ mGrid, /*mConnectedKeyFrameWeights,*/ /*mvpOrderedConnectedKeyFrames,*/ mvOrderedWeights, mBackupConnectedKeyFrameIdWeights, mbFirstConnection, /*mpParent,*/ /*mspChildrens,*/ /*mspLoopEdges,*/ /*mspMergeEdges,*/ mBackupParentId, mvBackupChildrensId, mvBackupLoopEdgesId, mvBackupMergeEdgesId, mbNotErase, mbToBeErased, mbBad, mHalfBaseline, /*mpMap,*/ mBackupPrevKFId, mBackupNextKFId, /*mBackupImuPreintegrated, */  mnBackupIdCamera, mnBackupIdCamera2, mK_, /*mpCamera,*/ /*mpCamera2,*/ mvLeftToRightMatch, mvRightToLeftMatch, mvKeysRight, NLeft, NRight, mGridRight);
+          return new orb_keyframe(bImu, nNextId, mnId, mnFrameId, mTimeStamp,   mnGridCols, mnGridRows,  mfGridElementWidthInv,  mfGridElementHeightInv,  mnTrackReferenceForFrame, mnFuseTargetForKF, mnBALocalForKF, mnBAFixedForKF, mnNumberOfOpt, mnLoopQuery, mnLoopWords, mLoopScore, mnRelocQuery, mnRelocWords, mRelocScore, mnMergeQuery, mnMergeWords, mMergeScore, mnPlaceRecognitionQuery, mnPlaceRecognitionWords, mPlaceRecognitionScore, mbCurrentPlaceRecognition, mTcwGBA, mTcwBefGBA, mVwbGBA, mVwbBefGBA, mBiasGBA, mnBAGlobalForKF, mTcwMerge, mTcwBefMerge, mTwcBefMerge, mVwbMerge, mVwbBefMerge, mBiasMerge, mnMergeCorrectedForKF, mnMergeForKF, mfScaleMerge, mnBALocalForMerge, mfScale, fx, fy, cx, cy, invfx, invfy, mbf, mb, mThDepth, mDistCoef, N, mvKeys, mvKeysUn, mvuRight, mvDepth, mDescriptors, /*mBowVec, mFeatVec,*/ mTcp, mnScaleLevels, mfScaleFactor, mfLogScaleFactor, mvScaleFactors, mvLevelSigma2, mvInvLevelSigma2, mnMinX, mnMinY, mnMaxX, mnMaxY, /*mPrevKF,*/ /*mNextKF,*/ /*mpImuPreintegrated,*/ mImuCalib, mnOriginMapId, mNameFile, mnDataset, /*mvpLoopCandKFs,*/ /*mvpMergeCandKFs,*/ mvLoopCandKFIds, mvMergeCandKFIds, mTcw, /*mRcw, mTwc, mRwc, mOwb, mVw,*/ mbHasVelocity, mTlr, mTrl, mImuBias, /*mvpMapPoints,*/ mvBackupMapPointsId, /*mpKeyFrameDB,*/ /*mpORBvocabulary,*/ mGrid, /*mConnectedKeyFrameWeights,*/ /*mvpOrderedConnectedKeyFrames,*/ mvOrderedWeights, mBackupConnectedKeyFrameIdWeights, mbFirstConnection, /*mpParent,*/ /*mspChildrens,*/ /*mspLoopEdges,*/ /*mspMergeEdges,*/ mBackupParentId, mvBackupChildrensId, mvBackupLoopEdgesId, mvBackupMergeEdgesId, mbNotErase, mbToBeErased, mbBad, mHalfBaseline, /*mpMap,*/ mBackupPrevKFId, mBackupNextKFId, /*mBackupImuPreintegrated, */  mnBackupIdCamera, mnBackupIdCamera2, mK_, mnLastModule, /*mpCamera,*/ /*mpCamera2,*/ mvLeftToRightMatch, mvRightToLeftMatch, mvKeysRight, NLeft, NRight, mGridRight);
         }
       }   
 
 
       static keyframe ORBSLAM3KeyFrameToROS(orb_keyframe* pKf,  bool mbProcessMPs=true, std::set<std::string> mspUpdateMapPointIds=std::set<std::string>()) {
-        //std::mutex mMutex;
-        //std::lock_guard<std::mutex> lock(mMutex);
         keyframe msgKf = FormDefaultKeyFrameMessage();
         msgKf.system_id = std::getenv("SLAM_SYSTEM_ID");
-        //std::cout << "start of kf conversion" << std::endl;
         // Public 1
         msgKf.b_imu = pKf->bImu;
 
@@ -421,9 +419,6 @@ namespace Converter {
         msgKf.mn_dataset = pKf->mnDataset;
         
         
-        //std::cout << "line 505" << std::endl;
-        //KeyFrame[] mvp_loop_cand_kfs #std::vector <KeyFrame*> mvpLoopCandKFs;
-        //KeyFrame[] mvp_merge_cand_kfs #std::vector <KeyFrame*> mvpMergeCandKFs;
         std::vector<orb_keyframe*> mvpLoopCandKFs=pKf->mvpLoopCandKFs;
         std::vector<long unsigned int> mvpLoopCandKFsId;
         
@@ -493,7 +488,6 @@ namespace Converter {
         
         msgKf.mvp_map_points = msgMps; //std::vector<MapPoint*> mvpMapPoints;
 
-        //std::cout << "line 555" << std::endl;
         // For save relation without pointer, this is necessary for save/load function
         std::vector<std::string> mvpMapPointBackup = std::vector<std::string>();
         for(const auto& tempMP : pKf->GetMapPointMatches())
@@ -506,7 +500,6 @@ namespace Converter {
             mvpMapPointBackup.push_back("");
           }
         }
-        //std::cout << "MAP POINT MATCHES=" << pKf->GetMapPointMatches().size() << ", " << pKf->N << ", " << mvpMapPointBackup.size() << std::endl;
         msgKf.mv_backup_map_points_id = mvpMapPointBackup; //std::vector<long long int> mvBackupMapPointsId;
 
         // BoW
@@ -538,14 +531,7 @@ namespace Converter {
         
         // Spanning Tree and Loop Edges
         msgKf.mb_first_connection = pKf->GetFirstConnection();
-        //bool mb_first_connection //bool mbFirstConnection;
-        //KeyFrame mp_parent //KeyFrame* mpParent;
-        //KeyFrame[] msp_childrens //std::set<KeyFrame*> mspChildrens;
-        //KeyFrame[] msp_loop_edges //std::set<KeyFrame*> mspLoopEdges;
-        //KeyFrame[] msp_merge_edges //std::set<KeyFrame*> mspMergeEdges;
         
-
-        //std::cout << "line 607" << std::endl;
         // For save relation without pointer, this is necessary for save/load function
         orb_keyframe* pKfP = pKf->GetParent();
         msgKf.m_backup_parent_id = (pKfP != nullptr) ? pKfP->mnId : -1;
@@ -577,7 +563,6 @@ namespace Converter {
         }
         msgKf.mv_backup_merge_edges_id = mspMergeEdgesId; //std::vector<long unsigned int> mvBackupMergeEdgesId;
         
-        //std::cout << "line 639" << std::endl;
 
         // Bad flags
         msgKf.mb_not_erase = pKf->GetNotErase(); //bool mbNotErase;
@@ -589,20 +574,14 @@ namespace Converter {
         // Map mp_map //Map* mpMap;
         orb_map* pM = pKf->GetMap();
         msgKf.mp_map_id = (pM != nullptr) ? pM->GetId() : -1; 
-        //std::cout << "line 651" << std::endl;
         
         // Backup variables for inertial
         orb_keyframe* pKfPrev = pKf->mPrevKF;
         orb_keyframe* pKfNext = pKf->mNextKF;
 
-        //std::cout << "line 657" << std::endl;
         msgKf.m_backup_prev_kf_id = (pKfPrev != nullptr) ? pKfPrev->mnId : -1;
-        //std::cout << "line 659" << std::endl;
-        //if(!pKfNext || pKfNext == nullptr) std::cout << "pKfNext is nullptr" << std::endl;
         msgKf.m_backup_next_kf_id = (pKfNext != nullptr) ? pKfNext->mnId : -1;
 
-
-        //std::cout << "line 659" << std::endl;
         // Backup for Cameras
         ORB_SLAM3::GeometricCamera* mpCamera = pKf->mpCamera;
         ORB_SLAM3::GeometricCamera* mpCamera2 = pKf->mpCamera2;
@@ -612,7 +591,8 @@ namespace Converter {
 
         // Calibration
         msgKf.m_k_calib = CppToRos::EigenMatrix3ToMatrix(pKf->GetCalibrationMatrix()); //Eigen::Matrix3f mK_;
-
+        
+        msgKf.mn_last_module = pKf->GetLastModule();
 
         // ---------------------------------------------------------------------------------
         // public
@@ -631,7 +611,6 @@ namespace Converter {
         // Figure how to take nulls into consideration with grids. Not needed for monocular.
         //msgKf.m_grid_right = toGrid3D(pKf->mGridRight); //std::vector< std::vector <std::vector<size_t> > > mGridRight;
 
-        //std::cout << "end of conversion" << std::endl;
         return msgKf;
 
       }
@@ -647,95 +626,6 @@ namespace Converter {
         return msgKf;
 
       }
-      
-      static void FillKeyFrameData(orb_keyframe* mopKf, keyframe::SharedPtr mrpKf, std::map<long unsigned int, orb_keyframe*> mpOrbKeyFrames, std::map<long unsigned int, orb_map*> mpOrbMaps, std::map<std::string, orb_map_point*> mpOrbMapPoints, bool* bUnprocessed) 
-      {
-
-        // Preintegrated IMU measurements from previous keyframe
-        if(mpOrbKeyFrames.find(mrpKf->m_backup_prev_kf_id) != mpOrbKeyFrames.end() && mopKf->mPrevKF == nullptr) {
-          mopKf->mPrevKF = mpOrbKeyFrames[mrpKf->m_backup_prev_kf_id]; 
-        } else if(mrpKf->m_backup_prev_kf_id > -1) {
-          *bUnprocessed = true;
-        }
-        
-        if(mpOrbKeyFrames.find(mrpKf->m_backup_next_kf_id) != mpOrbKeyFrames.end() && mopKf->mNextKF == nullptr) {
-          mopKf->mNextKF = mpOrbKeyFrames[mrpKf->m_backup_next_kf_id]; 
-        } else if(mrpKf->m_backup_next_kf_id > -1) {
-          *bUnprocessed = true;
-        }
-
-        std::vector <orb_keyframe*> mvpLoopCandKFs = std::vector<orb_keyframe*>(); //std::vector <KeyFrame*> mvpLoopCandKFs = rKf->;
-        for(const auto& kf_id : mrpKf->mvp_loop_cand_kfs_id) {
-          if(mpOrbKeyFrames.find(kf_id) != mpOrbKeyFrames.end()) {
-            mvpLoopCandKFs.push_back(mpOrbKeyFrames[kf_id]); 
-          } else if(kf_id > -1) {
-            *bUnprocessed = true;
-          }
-        }
-        mopKf->mvpLoopCandKFs = mvpLoopCandKFs;
-        
-        std::vector <orb_keyframe*> mvpMergeCandKFs = std::vector<orb_keyframe*>();//std::vector <KeyFrame*> mvpMergeCandKF = rKf->s;
-        for(const auto& kf_id : mrpKf->mvp_merge_cand_kfs_id) {
-          if(mpOrbKeyFrames.find(kf_id) != mpOrbKeyFrames.end()) {
-            mvpMergeCandKFs.push_back(mpOrbKeyFrames[kf_id]); 
-          } else if(kf_id > -1) {
-            *bUnprocessed = true;
-          }
-        }
-        mopKf->mvpMergeCandKFs = mvpMergeCandKFs;
-
-
-        std::map<orb_keyframe*,int> mConnectedKeyFrameWeights = std::map<orb_keyframe*,int>();  //std::map<KeyFrame*,int> mConnectedKeyFrameWeights = rKf->;
-        for(size_t i; i < mrpKf->mvp_ordered_connected_keyframes_id.size(); ++i)
-        {
-          unsigned long int kfId = mrpKf->mvp_ordered_connected_keyframes_id[i];
-          if(mpOrbKeyFrames.find(kfId) != mpOrbKeyFrames.end()) {
-            mConnectedKeyFrameWeights.insert(std::make_pair(mpOrbKeyFrames[kfId], mrpKf->mv_ordered_weights[i]));
-          } else if(kfId > -1) {
-            *bUnprocessed = true;
-          }
-        }
-        mopKf->SetmConnectedKeyFrameWeights(mConnectedKeyFrameWeights);
-
-
-
-        if(mpOrbKeyFrames.find(mrpKf->m_backup_parent_id) != mpOrbKeyFrames.end()) {
-          mopKf->SetMpParent(mpOrbKeyFrames[mrpKf->m_backup_parent_id]); 
-        } else if(mrpKf->m_backup_parent_id > -1) {
-          *bUnprocessed = true;
-        }
-
-        std::set<orb_keyframe*> mspChildrens = std::set<orb_keyframe*>();//std::set<KeyFrame*> mspChildrens = rKf->;
-        for(const auto& id : mrpKf->mv_backup_childrens_id) {
-          if(mpOrbKeyFrames.find(id) != mpOrbKeyFrames.end()) {
-            mspChildrens.insert(mpOrbKeyFrames[id]);
-          } else if(id > -1) {
-            *bUnprocessed = true;
-          }
-        }
-        mopKf->SetMspChildrens(mspChildrens);
-
-        std::set<orb_keyframe*> mspLoopEdges = std::set<orb_keyframe*>();//std::set<KeyFrame*> mspLoopEdges = rKf->;
-        for(const auto& id : mrpKf->mv_backup_loop_edges_id) {
-          if(mpOrbKeyFrames.find(id) != mpOrbKeyFrames.end()) {
-            mspLoopEdges.insert(mpOrbKeyFrames[id]);
-          } else if(id > -1) {
-            *bUnprocessed = true;
-          }
-        }
-        mopKf->SetMspLoopEdges(mspLoopEdges);
-
-        std::set<orb_keyframe*> mspMergeEdges = std::set<orb_keyframe*>();//std::set<KeyFrame*> mspMergeEdges = rKf->;
-        for(const auto& id : mrpKf->mv_backup_merge_edges_id) {
-          if(mpOrbKeyFrames.find(id) != mpOrbKeyFrames.end()) {
-            mspMergeEdges.insert(mpOrbKeyFrames[id]);
-          } else if(id > -1) {
-            *bUnprocessed = true;
-          }
-        }
-        mopKf->SetMspMergeEdges(mspMergeEdges);
-      }
-
   };
 };
 
